@@ -2,7 +2,7 @@
 # PiBattery
 Simple DIY Solar Surplus Storage
 
-🔧 Functionaliteiten
+🔧 #Functionaliteiten
 
 Slimme laadlogica op basis van zonne-overschot (P1 + Solar)
 
