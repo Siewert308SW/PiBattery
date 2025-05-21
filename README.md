@@ -27,7 +27,8 @@ De setup die ik hier beschrijf lijkt op een kant-en-klare stekkerbatterij zoals 
 maar is dus een zelfbouwvariant zonder gelikt kastje.  
 In tegenstelling tot de grote merken is dit geen off-grid systeem.  
 Ik gebruik twee EcoFlow Powerstream 800W omvormers.  
-Omdat dit stekkeromvormers zijn, is de netinjectie – net als bij kant-en-klare oplossingen – beperkt tot 800W.
+Omdat dit stekkeromvormers zijn, is de netinjectie net als bij kant-en-klare oplossingen beperkt tot 800W.
+Maar in een configuratie als de mijne (25,6v) is dat 600w per omvormer.
 
 ---
 
@@ -35,21 +36,22 @@ Omdat dit stekkeromvormers zijn, is de netinjectie – net als bij kant-en-klare
 
 **Het laden** is eenvoudig:  
 De PHP-scripts berekenen aan de hand van de instellingen en configuratie of er geladen mag worden.  
-Ze starten de laders op basis van het PV-overschot en kunnen de batterijen in mijn setup laden met:
+Zo starten de laders op basis van het PV-overschot en kunnen de batterijen in mijn setup laden met:
 - **350W**
 - **700W**
 - **1000W** of **1300W**
 
-Afhankelijk van het beschikbare overschot.  
+Allemaal afhankelijk van het beschikbare overschot.  
 Op basis van diverse berekeningen kunnen de laders individueel in- en uitgeschakeld worden.  
-Dit schakelen gebeurt via de lokale HomeWizard API.  
+De lader zijn allemaal via hun eigen HomeWizard socket aangesloten.
+En het schakelen gebeurt dan ook via de lokale HomeWizard API.  
 Er is een schakelpauze om onnodig schakelen te voorkomen.  
 Verder berekent het script het laadverlies, zodat in de debug-output het correcte batterij-SOC en de laad- en ontlaadtijden weergegeven worden.
 
 **Het ontladen** is nog eenvoudiger:  
 Op basis van het P1-verbruik wordt bepaald of er te veel van het net wordt verbruikt.  
 Hierop wordt het benodigde vermogen via de EcoFlow API naar de omvormers gestuurd.  
-Op deze manier stuurt het systeem op NOM (Nul Op De Meter).  
+Op deze manier stuurt het systeem aan op NOM (Nul Op De Meter).  
 Er wordt rekening gehouden met zomer- en wintertijd;  
 bijvoorbeeld dat de batterij in de winter minder diep wordt ontladen om slechte PV-dagen te overbruggen.  
 Ook met korte stroompieken in huis wordt rekening gehouden: het script reageert niet direct, om onnodig schakelen te voorkomen.
@@ -62,7 +64,7 @@ Ook met korte stroompieken in huis wordt rekening gehouden: het script reageert 
 - **Slimme schakeling** van laders en omvormers via HomeWizard P1-meter, kWh-meter, energy-sockets en directe API-aansturing
 - **Laadverliesmeting** wordt automatisch berekend en gecorrigeerd op basis van laden en ontladen
 - **Ondersteuning voor Domoticz**: actuele batterijstatus en energiegegevens worden doorgegeven aan Domoticz
-- **Pauzefunctie en tijdschema’s**: voorkomt onnodig laden bij wolkendips of slechte zonneprognose
+- **Pauzefunctie en tijdschema’s**: voorkomt onnodig schakelen bij wolkendips
 - **Meertaligheid**: zowel Nederlands als Engels
 - **Uitgebreide logging en debug-output** voor probleemoplossing en finetuning
 - **Fasebescherming**: laders worden direct uitgeschakeld als de fase waarop ze aangesloten zijn te veel vermogen trekt
@@ -105,9 +107,16 @@ Samengevat:
 5. **EcoFlow API** is opengesteld via het EcoFlow IoT Developer Platform  
 6. (Optioneel) **Domoticz** voor het doorsturen en loggen van alle data  
 7. **Elektrisch** deel vereist kennis; vertrouw je het niet, laat dit door een expert uitvoeren
-8. De batterijen zijn parallel aangesloten en verbonden met de PV-ingang van de omvormers  
-   De omvormers zijn met een stekker op een vrije groep aangesloten  
-   De laders zijn parallel aangesloten op de batterijen
+8. De batterijen zijn parallel aangesloten en verbonden met de PV-ingang van de omvormers.
+   De omvormers zijn met hun stekker in een HomeWizard energy-socket gestoken om realtime outout uit te kunnen lezen.
+   Elke omvormer is op een vrije groep aangesloten.  
+   De laders zijn parallel aangesloten op de batterijen en hebben elk hun eigen HomeWizard energy-socket, om ook hier de realtime output te kunnen uitlezen maar het belangrijkste is om ze te kunnen in- uitschakelen.
+   Verder zijn de batterijen van het merk Powerqueen en hebben hun eigen BMS en heb elke batterij afzonderlijk afgezekerd met een 30A zekering.
+   
+<p align="center">
+<img src="images/setup.jpg" alt="Mijn batterij" width="50%">
+</p>   
+<p align="center"><small>Bron: Foto van ehoco.nl</small></p>
 
 Hier vind je een handig linkje met een uitgebreide uitleg:  
 https://ehoco.nl/eenvoudige-thuisbatterij-zelf-maken/
