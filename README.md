@@ -84,13 +84,13 @@ Het script zal hier niet direct op reageren om zo onnodig schakelen te voorkomen
 - 2x Victron IP22 12a laders
 - 1x Powerqueen 20a LifePo4 lader
 - 3x Powerqueen 25,6v 100ah LFP batterijen in parallel
-- Klein materiaal zoals zekeringen, bekabeling en batterij schakelaar ect  
-</br>
-Totale kosten voor deze 7,5kWh thuisbatterij waren door slim inkopen €2100</br>
+- Klein materiaal zoals zekeringen, bekabeling en batterij schakelaar ect 
+Totale kosten voor deze 7,5kWh thuisbatterij waren door slim inkopen €2100<br/>
 
 ---
 
 ## Installatie
+
 ** De installatie** bespreek ik hier niet want ga er vanuit dat diegene die hier mee wil spelen enige kennis van zaken heeft.<br/>
 Maar in het kort komt het er hier op neer.<br/>
 Je draait deze scripts op:</br>
@@ -106,7 +106,7 @@ Deze zijn op hun beurt weer aangesloten op de PV ingang op de omvormers.<br/>
 De omvormers zijn op hun beurt weer met een stekker in een vrije WCD gestoken.<br/>
 In mijn geval twee vrije groepen.<br/>
 De laders zijn parallel aangesloten op de batterijen.<br/>
-Hier een handig linkje met een wat uitgebreide uitleg:</br>
+Hier een handig linkje met een wat uitgebreide uitleg:<br/>
 https://ehoco.nl/eenvoudige-thuisbatterij-zelf-maken/
 
 ---
@@ -114,11 +114,11 @@ https://ehoco.nl/eenvoudige-thuisbatterij-zelf-maken/
 ## Bestands- en Mappenstructuur
 
 ```
-pibatteryTest/
+pibattery/
 │
-├─ pibattery.php                # Hoofdscript voor automatisering en logica
+├─ pibattery.php                # Hoofdscript en word via cron elke 20sec aangeroepen
 ├─ bootstrap/
-│   └─ bootstrap.php            # Opstartlogica en initialisatie
+│   └─ bootstrap.php            # 1e initialisatie
 ├─ config/
 │   └─ config.php               # Instellingen (hardware, batterijen, API’s, e.d.)
 ├─ data/
@@ -126,7 +126,7 @@ pibatteryTest/
 │   └─ variables.json           # Alle variabelen en tijdelijke data
 ├─ includes/
 │   ├─ ecoflow_api_class.php    # API-integratie voor EcoFlow apparaten
-│   ├─ functions.php            # Algemene functies (helpers, berekeningen)
+│   ├─ functions.php            # Algemene functies
 │   ├─ helpers.php              # Diverse hulpjes en utilities
 │   └─ variables.php            # Variabelen en dynamische waarden
 ├─ lang/
@@ -134,7 +134,7 @@ pibatteryTest/
 │   └─ langEN.php               # Engelse taal
 └─ scripts/
     ├─ baseload.php             # Baseload (basisvermogen) sturing
-    ├─ charge.php               # Laadlogica en batterijbeheer
+    ├─ charge.php               # Laadlogica beheer
     └─ domoticz.php             # Koppeling met Domoticz
 ```
 
@@ -149,42 +149,37 @@ Alle belangrijke instellingen vind je in `config/config.php`. Hier stel je onder
 - Pauzetijden, hysterese en meetdrempels
 - Optionele Domoticz-koppelingen (met IDX-nummers)
 
-De map `data/` bevat tijdelijke waarden zoals het laatste laad-/ontlaadmoment, variabelen, en logbestanden. Dit wordt automatisch beheerd door het script.
-
----
-
-## Taalinstellingen
-
-De interface en console-output kunnen naar wens in het Nederlands of Engels. Pas dit aan in je configuratie (`$debugLang` in `config.php` of elders in de code):
-
-```php
-$debugLang = 'NL'; // Of 'EN'
-```
-
 ---
 
 ## Domoticz-integratie (optioneel)
 
-Wil je actuele waarden in Domoticz zien?  
-Vul dan je Domoticz-IP en de juiste IDX-nummers in voor de gewenste dummy devices in de configuratie.  
-Het script `scripts/domoticz.php` regelt automatische updates van je batterij- en energiestatus in Domoticz.
-
----
-
-## Gebruik en tips
-
-- Start het script met `php pibattery.php` of via een cronjob.
-- Raadpleeg de console-output/logs voor actuele status, foutmeldingen en optimalisaties.
-- Pas waar nodig de thresholds aan voor jouw installatie.
-- Meerdere scripts (zoals `charge.php` en `baseload.php`) zijn los inzetbaar voor geavanceerd gebruik.
+Wil je actuele waarden in Domoticz zien?<br/> 
+Vul dan je Domoticz-IP en de juiste IDX-nummers in voor de gewenste dummy devices in de configuratie.<br/>  
+Het script `scripts/domoticz.php` regelt automatische updates van je batterij- en energiestatus in Domoticz.<br/>
 
 ---
 
 ## Bijdragen & Licentie
 
-Dit project is open source en bedoeld om samen te verbeteren! Zie LICENSE voor voorwaarden.  
-Pull requests, feedback en suggesties zijn welkom.
+Dit project is open source en bedoeld om samen te verbeteren.<br/> 
+Pull requests, feedback en suggesties zijn welkom.<br/>
 
+---
+
+## Grote dank
+
+Mijn dank voor dit project gaat uit naar:
+- Thijsmans voor het beschikbaar stellen van de EcoFlow API aansturing
+- ehoco.nl voor de inspiratie van dit project
+- salipander voor starten van "Eenvoudige thuisaccu samenstellen" topic op Tweakers
+- En allen die ik vergeten ben ;-)
+
+---
+
+## Handige linkjes
+
+Om je opweg te helpen en inspiratie op te doen hier wat handige linkjes waar ik mijn project op gebasseerd hebt.<br/>
+- Tweaker: Eenvoudige thuisaccu samenstellen [Eenvoudige thuisaccu samenstellen](https://gathering.tweakers.net/forum/list_messages/2253584/0)
 ---
 
 **Veel plezier met PiBattery en een slimme, duurzame thuisbatterij!**
