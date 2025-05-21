@@ -85,6 +85,7 @@ Ook met korte stroompieken in huis wordt rekening gehouden: het script reageert 
 - Klein materiaal zoals zekeringen, bekabeling, batterijswitch etc.
 
 Totale kosten voor deze 7,5kWh thuisbatterij waren, door slim inkopen, €2100.
+
 <img src="images/setup.jpg" alt="Mijn batterij" width="50%">
 ---
 
