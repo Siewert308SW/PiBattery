@@ -1,18 +1,44 @@
 ![Banner](https://github.com/user-attachments/assets/143c1ac7-f58b-4016-88dd-2aac3e8cd6f2)
-# PiBattery – Open Source Thuisbatterij & Zonnestroom Automatisering
+# PiBattery – Eenvoudige Zelfbouw Thuisbatterij
 
-**PiBattery** is een open source project voor het slim aansturen van een thuisbatterij in combinatie met zonnepanelen. Het script is gericht op de Raspberry Pi (of vergelijkbare systemen) en maakt het mogelijk om je (EcoFlow) thuisbatterij, laders en micro-omvormers automatisch te beheren op basis van actuele energiegegevens, verbruik, opbrengst én slimme regels.  
-Geschikt voor de Nederlandse thuissituatie – maar makkelijk aanpasbaar.
+**PiBattery** Er niets zo veranderlijk als onze energie-markt en Den Haag is nog wispelturiger dan het Nederlandse weer.
+In de aanloop naar terugleverkosten en einde saldering zocht ik naar een goedkope en simpele oplossing om kosten te drukken.
+Mede door stijgende energiekosten en komende maatregelen die Den Haag en de energieboeren voor ogen hebben wordt energieopslag thuis steeds aantrekkelijker.
+De huidige prijzen van kant&klare thuisbatterijen zijn wat mij betreft ook nog niet aantrekkelijk genoeg.
+En ik verwacht met de komende populariteit van de thuisbatterij dat de prijzen op basis van vraag en aanbod alleen maar zullen stijgen.
+Een zelfbouw thuisbatterij kan een betaalbare oplossing zijn om de overtollige energie die je zelf opwekt op te slaan.
+In mijn zoektocht naar een oplossing kwam ik uit in een thread op Tweakers.
+Waarin een goedkope oplossing word besproken en daar op voortbordurend wil ik graag mij setup en scripts met jullie delen.
+Ik leg hier de simpele basis principes uit, diep in de materie ga ik niet.
+Verwacht dat diegene die hiermee aan de slag gaat enige technischekennis, php en aanverwante hebben.
+
+---
+## Doel
+
+**Doel** met deze setup is om in de nachten en avonden aan te sturen op NOM (nul op de meter).
+En overdag de grootste verbruiks pieken wil afvlakken.
+Handelen zoals inkoop/verkoop in combinatie met een dynamisch contract is niet mijn doel.
+
+Ik tracht eerder de maandelijkse kosten te drukken door overshot van mijn zonnepanelen op te slaan in de batterij en dat scheelt het een paar centen terugleverkosten.
+En doordat ik die opgeslagen energie 's avonds en 's nachts weer gebruik scheelt het afnamen van het net.
+En daarmee probeer ik de maandelijkse energiekosten te drukken.
+
+De setup die ik hier heb hangen is/lijkt op een kant en klare stekker batterij zoals die van HomeWizard of Marstek ect.
+Alleen is het een zelfbouw en mist dus een gelikt kastje.
+En in tegenstelling tot de grote jongens is het een systeem die niet offgrid kan.
+Verder maak ik gebruik van twee EcoFlow Powerstream 800w omvormers.
+En omdat dit stekker-omvormers zijn is de injectie net zoals de kant en klare oplossingen beperkt to 800w.
+En aangezien ik met 25,6v LFP batterijen werk is de injectie beperkt tot max 600w per omvormer.
+Maar in mijn thuisituatie is 1200w injectie meer dan genoeg.
 
 ---
 
 ## Functies & Mogelijkheden
 
-- **Volautomatisch laden/ontladen** van je EcoFlow-batterij op basis van P1-verbruik, zonne-opbrengst en stroomprijs.
-- **Peak shaving**: piekverbruik uitvlakken en meer eigen zonnestroom benutten.
-- **Slimme schakeling** van laders en omvormers via HomeWizard P1/Solar, slimme stekkers en directe API-aansturing.
-- **Laadverlies-meting**: automatisch verlies bijladen en corrigeren op basis van echte metingen.
-- **Ondersteuning voor Domoticz**: actuele batterijstatus en energiegegevens doorgeven aan je Domoticz smart home.
+- **Volautomatisch laden/ontladen** van de batterijen word gedaan op basis van P1-verbruik, zonne-opbrengst.
+- **Slimme schakeling** van laders en omvormers via HomeWizard P1-meter, kWh-meter, energy-sockets en directe API-aansturing.
+- **Laadverlies-meting** word automatisch berekend en gecorrigeerd op basis van laden en ontladen.
+- **Ondersteuning voor Domoticz**: actuele batterijstatus en energiegegevens worden doorgeven aan Domoticz.
 - **Pauzefunctie en tijdschema’s**: voorkom onnodig laden bij wolkendips of slechte zonneprognose.
 - **Meertaligheid**: zowel Nederlands als Engels.
 - **Uitgebreide logging en debug-output** voor probleemoplossing en finetuning.
