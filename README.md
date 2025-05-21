@@ -34,27 +34,26 @@ En omdat dit stekker-omvormers zijn is de injectie net zoals de kant en klare op
 ## Basis Werking
 **Het laden** van deze setup is simpel.<br/>
 De php scripts berekenen aan de hand van de instellingen en configuratie of er geladen mag worden.<br/>
-Hij start de laders op basis van het pv-overschot.<br/>
-En kan de batterijen in mijn setup laden met:.<br/>
-- 350w.<br/>
-- 700w.<br/>
-- 1000w of 1300w.<br/>
+Hij start de laders op basis van het pv-overschot en kan de batterijen in mijn setup laden met:<br/>
+- **350w**<br/>
+- **700w**<br/>
+- **1000w** of **1300w**<br/>
 Dit hangt dus af van het beschikbare overschot.<br/>
+</br>
 Op basis van verschillende calculaties kan hij de laders individueel in- en uitschakelen.<br/>
 Dit schakelen word gedaan door de Homewizard lokale API aan te sturen.<br/>
-En heeft een schakel pauze functie om onnoddig in- uitschakelen te voorkomen.<br/>
+En heeft een schakel pauze functie om onnodig in- uitschakelen te voorkomen.<br/>
 Tevens berekend hij het laadverlies om in de debug outut de correcte batterij SOC en laad- ontlaad tijden weer te geven.<br/>
 <br/>
 **Het ontladen** is nog simpeler.<br/>
-Hier word op basis van het p1 verbruik uitgerekend of er teveel verbruik van het NET is.<br/>
+Hier word op basis van het P1 verbruik uitgerekend of er teveel verbruik van het NET is.<br/>
 En hierop word de benodigde wattage wat nodig is via de API van EcoFlow de omvormers aangestuurd.<br/>
 Op deze manier word er dus aangestuurd op NOM (Nul Op De Meter).<br/>
 Tevens word er rekening gehouden met zomer- en winterijd.<br/>
-Dat wil zeggen dat er bepaalde zaken anders worden geregeld als het wintertijd is.<br/>
-Denk dat bijvoorbeeld dat de batterij minders diep word ontladen.<br/>
-Om langdurige slechte pv-productie dagen te overbruggen.<br/>
+Dat wil zeggen dat er bepaalde zaken anders worden geregeld als het zomer- of wintertijd is.<br/>
+Denk dat bijvoorbeeld dat de batterij minder diep word ontladen om langdurige slechte pv-productie dagen te overbruggen.<br/>
 Ook word er rekening gehouden met korte hoge stroom pieken.<br/>
-Het kan zijn dat bepaalde apperaten in huis heel even stroom verbruiken.<br/>
+Het kan zijn dat bepaalde apparaten in huis heel even stroom verbruiken.<br/>
 Het script zal hier niet direct op reageren om zo onnodig schakelen te voorkomen.<br/>
   
 ---
@@ -74,6 +73,7 @@ Het script zal hier niet direct op reageren om zo onnodig schakelen te voorkomen
 ---
 
 ## Mijn Setup & Kosten
+- 1x Raspberry Pi4 met behuizing, USB 64gb opslag en adapter
 - 1x HomeWizard p1-meter
 - 1x HomeWizard 3fase kWh-meter (realtime pv opwek uitlezen)
 - 6x HomeWizard Energy-sockets
@@ -86,6 +86,27 @@ Het script zal hier niet direct op reageren om zo onnodig schakelen te voorkomen
 - Klein materiaal zoals zekeringen, bekabeling en batterij schakelaar ect  
 </br>
 Totale kosten voor deze 7,5kWh thuisbatterij waren door slim inkopen €2100</br>
+
+---
+
+## Installatie
+** De installatie** bespreek ik hier niet want ga er vanuit dat diegene die hier mee wil spelen enige kennis van zaken heeft.<br/>
+Maar in het kort komt het er hier op neer.<br/>
+Je draait deze scripts op:</br>
+1. **Raspberry Pi** (of andere Linux SBC/VM)
+2. **PHP 8.x** geïnstalleerd  
+3. **piBattery.php** word elke x seconden via cron aangeroepen
+4. **HomeWizard** API aansturing voor P1-meter, kWh-meter & energy-sockets is ingeschakeld    
+5. **EcoFlow API** is open gesteld via EcoFlow IoT Developer Platform voor API-sturing   
+6. (Optioneel) **Domoticz** voor het door sturen van alle data om te loggen
+7. **Elektrische** gedeelte vereist kennis, vertrouw je het niet dan laat je iemand met kennis dit uitvoeren.
+8. De batterijen zijn parallel aangesloten.
+Deze zijn op hun beurt weer aangesloten op de PV ingang op de omvormers.<br/>
+De omvormers zijn op hun beurt weer met een stekker in een vrije WCD gestoken.<br/>
+In mijn geval twee vrije groepen.<br/>
+De laders zijn parallel aangesloten op de batterijen.<br/>
+Hier een handig linkje met een wat uitgebreide uitleg:</br>
+https://ehoco.nl/eenvoudige-thuisbatterij-zelf-maken/
 
 ---
 
@@ -115,27 +136,6 @@ pibatteryTest/
     ├─ charge.php               # Laadlogica en batterijbeheer
     └─ domoticz.php             # Koppeling met Domoticz
 ```
-
----
-
-## Installatie & Benodigdheden
-
-1. **Raspberry Pi** (of andere Linux SBC/VM)
-2. **PHP 8.x** geïnstalleerd  
-3. **HomeWizard P1 Meter** & (optioneel) HomeWizard Solar en slimme stekkers  
-4. **EcoFlow batterij en omvormers** (voor API-sturing)  
-5. (Optioneel) **Domoticz** smart home platform
-
-**Installeren:**
-- Download deze repository naar je Pi:  
-  `git clone https://github.com/<jouw-gebruikersnaam>/pibattery.git`
-- Controleer en pas de instellingen aan in `config/config.php` (zie verderop).
-- Zorg dat PHP toegang heeft tot de benodigde apparaten/APIs.
-- Zet een cronjob aan voor het gewenste script, bijvoorbeeld elke 15 seconden:
-  ```
-  */1 * * * * php /pad/naar/pibattery.php
-  ```
-- Zie ook eventuele vereisten in de code (zoals `curl` voor API-aanroepen).
 
 ---
 
