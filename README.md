@@ -2,7 +2,7 @@
 # PiBattery – Eenvoudige Zelfbouw Thuisbatterij
 
 **PiBattery** Er niets zo veranderlijk als onze energie-markt en Den Haag is nog wispelturiger dan het Nederlandse weer.<br/>
-In de aanloop naar terugleverkosten en einde saldering zocht ik naar een goedkope en simpele oplossing om kosten te drukken.<br/>
+In de aanloop naar terugleverkosten en einde saldering zocht ik naar een goedkope oplossing om kosten te drukken.<br/>
 Mede door stijgende energiekosten en komende maatregelen die Den Haag en de energieboeren voor ogen hebben wordt energieopslag thuis steeds aantrekkelijker.<br/>
 De huidige prijzen van kant&klare thuisbatterijen zijn wat mij betreft ook nog niet aantrekkelijk genoeg.<br/>
 En ik verwacht met de komende populariteit van de thuisbatterij dat de prijzen op basis van vraag en aanbod alleen maar zullen stijgen.<br/>
@@ -27,25 +27,10 @@ De setup die ik hier heb hangen is/lijkt op een kant en klare stekker batterij z
 Alleen is het een zelfbouw en mist dus een gelikt kastje.<br/>
 En in tegenstelling tot de grote jongens is het een systeem die niet offgrid kan.<br/>
 Verder maak ik gebruik van twee EcoFlow Powerstream 800w omvormers.<br/>
-En omdat dit stekker-omvormers zijn is de injectie net zoals de kant en klare oplossingen beperkt to 800w.<br/>
-En aangezien ik met 25,6v LFP batterijen werk is de injectie beperkt tot max 600w per omvormer.<br/>
-Maar in mijn thuisituatie is 1200w injectie meer dan genoeg.<br/>
+En omdat dit stekker-omvormers zijn is de injectie net zoals de kant en klare oplossingen beperkt tot 800w.<br/>
 
 ---
 
-## Functies & Mogelijkheden
-
-- **Volautomatisch laden/ontladen** van de batterijen word gedaan op basis van P1-verbruik, zonne-opbrengst.
-- **Slimme schakeling** van laders en omvormers via HomeWizard P1-meter, kWh-meter, energy-sockets en directe API-aansturing.
-- **Laadverlies-meting** word automatisch berekend en gecorrigeerd op basis van laden en ontladen.
-- **Ondersteuning voor Domoticz**: actuele batterijstatus en energiegegevens worden doorgeven aan Domoticz.
-- **Pauzefunctie en tijdschema’s**: voorkom onnodig laden bij wolkendips of slechte zonneprognose.
-- **Meertaligheid**: zowel Nederlands als Engels.
-- **Uitgebreide logging en debug-output** voor probleemoplossing en finetuning.
-- **Fase bescherming**: Laders word direct uitgeschakeld indien de Fase waarop de laders zijn aangesloten een te hoog verbruik heeft.
-- **Extra koeling** in de vorm van 12cm pc fans op de omvormers worden automatisch aangestuurd.
-
----
 ## Basis Werking
 **Het laden** van deze setup is simpel.<br/>
 De php scripts berekenen aan de hand van de instellingen en configuratie of er geladen mag worden.<br/>
@@ -74,17 +59,33 @@ Het script zal hier niet direct op reageren om zo onnodig schakelen te voorkomen
   
 ---
 
+## Functies & Mogelijkheden
+
+- **Volautomatisch laden/ontladen** van de batterijen word gedaan op basis van P1-verbruik, zonne-opbrengst.
+- **Slimme schakeling** van laders en omvormers via HomeWizard P1-meter, kWh-meter, energy-sockets en directe API-aansturing.
+- **Laadverlies-meting** word automatisch berekend en gecorrigeerd op basis van laden en ontladen.
+- **Ondersteuning voor Domoticz**: actuele batterijstatus en energiegegevens worden doorgeven aan Domoticz.
+- **Pauzefunctie en tijdschema’s**: voorkom onnodig laden bij wolkendips of slechte zonneprognose.
+- **Meertaligheid**: zowel Nederlands als Engels.
+- **Uitgebreide logging en debug-output** voor probleemoplossing en finetuning.
+- **Fase bescherming**: Laders word direct uitgeschakeld indien de Fase waarop de laders zijn aangesloten een te hoog verbruik heeft.
+- **Extra koeling** in de vorm van 12cm pc fans op de omvormers worden automatisch aangestuurd.
+
+---
+
 ## Mijn Setup & Kosten
 - 1x HomeWizard p1-meter
 - 1x HomeWizard 3fase kWh-meter (realtime pv opwek uitlezen)
 - 6x HomeWizard Energy-sockets
 - 2x EcoFlow Powerstream 800w omvormers
 - 2x EcoFlow Coolingdecks
-- 2x 12cm USb powered pc fans
+- 2x 12cm USB powered pc fans
 - 2x Victron IP22 12a laders
 - 1x Powerqueen 20a LifePo4 lader
-- 3x Powerqueen 25,6v 100ah LFP batterijen
+- 3x Powerqueen 25,6v 100ah LFP batterijen in parallel
 - Klein materiaal zoals zekeringen, bekabeling en batterij schakelaar ect  
+</br>
+Totale kosten voor deze 7,5kWh thuisbatterij waren door slim inkopen €2100</br>
 
 ---
 
