@@ -45,6 +45,7 @@ Dit schakelen word gedaan door de Homewizard lokale API aan te sturen.<br/>
 En heeft een schakel pauze functie om onnodig in- uitschakelen te voorkomen.<br/>
 Tevens berekend hij het laadverlies om in de debug outut de correcte batterij SOC en laad- ontlaad tijden weer te geven.<br/>
 <br/>
+
 **Het ontladen** is nog simpeler.<br/>
 Hier word op basis van het P1 verbruik uitgerekend of er teveel verbruik van het NET is.<br/>
 En hierop word de benodigde wattage wat nodig is via de API van EcoFlow de omvormers aangestuurd.<br/>
