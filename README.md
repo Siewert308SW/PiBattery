@@ -30,6 +30,10 @@ Ik gebruik twee EcoFlow Powerstream 800W omvormers.
 Omdat dit stekkeromvormers zijn, is de netinjectie net als bij kant-en-klare oplossingen beperkt tot 800W.
 Maar in een configuratie als de mijne (25,6v) is dat 600w per omvormer.
 
+<p align="center">
+<img src="images/verbruik.png" alt="Mijn batterij" width="75%">
+</p>
+
 ---
 
 ## Basiswerking
@@ -112,6 +116,7 @@ Samengevat:
    Elke omvormer is op een vrije groep aangesloten.  
    De laders zijn parallel aangesloten op de batterijen en hebben elk hun eigen HomeWizard energy-socket, om ook hier de realtime output te kunnen uitlezen maar het belangrijkste is om ze te kunnen in- uitschakelen.
    Verder zijn de batterijen van het merk Powerqueen en hebben hun eigen BMS en heb elke batterij afzonderlijk afgezekerd met een 30A zekering.
+   En het is belangrijk om API toegang te verkrijgen via EcoFlow IOT Developers, anders kun je de omvormer niet aansturen.
    
 <p align="center">
 <img src="images/thuisbatterij.png" alt="Mijn batterij" width="75%">
@@ -194,7 +199,7 @@ Mijn dank voor dit project gaat uit naar:
 Om je op weg te helpen en inspiratie op te doen, hier enkele handige links waar ik mijn project op gebaseerd heb:  
 - Tweakers: [Eenvoudige thuisaccu samenstellen](https://gathering.tweakers.net/forum/list_messages/2253584/0)
 - ehoco.nl: [Een eenvoudige thuisbatterij zelf maken](https://ehoco.nl/eenvoudige-thuisbatterij-zelf-maken/)
-
+- ecoflow IOT: [IoT Developer Platform](https://developer-eu.ecoflow.com/us/)
 ---
 
 **Veel plezier met mijn PiBattery-bijdrage!**
