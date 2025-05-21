@@ -47,7 +47,7 @@ Maar in mijn thuisituatie is 1200w injectie meer dan genoeg.<br/>
 
 ---
 ## Basis Werking
-De werking van de setup is simpel.<br/>
+**Het laden** van deze setup is simpel.<br/>
 De php scripts berekenen aan de hand van de instellingen en configuratie of er geladen mag worden.<br/>
 Hij start de laders op basis van het pv-overschot.<br/>
 En kan de batterijen in mijn setup laden met:.<br/>
@@ -55,7 +55,23 @@ En kan de batterijen in mijn setup laden met:.<br/>
 - 700w.<br/>
 - 1000w of 1300w.<br/>
 Dit hangt dus af van het beschikbare overschot.<br/>
- 
+Op basis van verschillende calculaties kan hij de laders individueel in- en uitschakelen.<br/>
+Dit schakelen word gedaan door de Homewizard lokale API aan te sturen.<br/>
+En heeft een schakel pauze functie om onnoddig in- uitschakelen te voorkomen.<br/>
+Tevens berekend hij het laadverlies om in de debug outut de correcte batterij SOC en laad- ontlaad tijden weer te geven.<br/>
+<br/>
+**Het ontladen** is nog simpeler.<br/>
+Hier word op basis van het p1 verbruik uitgerekend of er teveel verbruik van het NET is.<br/>
+En hierop word de benodigde wattage wat nodig is via de API van EcoFlow de omvormers aangestuurd.<br/>
+Op deze manier word er dus aangestuurd op NOM (Nul Op De Meter).<br/>
+Tevens word er rekening gehouden met zomer- en winterijd.<br/>
+Dat wil zeggen dat er bepaalde zaken anders worden geregeld als het wintertijd is.<br/>
+Denk dat bijvoorbeeld dat de batterij minders diep word ontladen.<br/>
+Om langdurige slechte pv-productie dagen te overbruggen.<br/>
+Ook word er rekening gehouden met korte hoge stroom pieken.<br/>
+Het kan zijn dat bepaalde apperaten in huis heel even stroom verbruiken.<br/>
+Het script zal hier niet direct op reageren om zo onnodig schakelen te voorkomen.<br/>
+  
 ---
 
 ## Mijn Setup & Kosten
