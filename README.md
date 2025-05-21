@@ -46,6 +46,17 @@ Maar in mijn thuisituatie is 1200w injectie meer dan genoeg.<br/>
 - **Extra koeling** in de vorm van 12cm pc fans op de omvormers worden automatisch aangestuurd.
 
 ---
+## Basis Werking
+De werking van de setup is simpel.<br/>
+De php scripts berekenen aan de hand van de instellingen en configuratie of er geladen mag worden.<br/>
+Hij start de laders op basis van het pv-overschot.<br/>
+En kan de batterijen in mijn setup laden met:.<br/>
+- 350w.<br/>
+- 700w.<br/>
+- 1000w of 1300w.<br/>
+Dit hangt dus af van het beschikbare overschot.<br/>
+ 
+---
 
 ## Mijn Setup & Kosten
 - 1x HomeWizard p1-meter
