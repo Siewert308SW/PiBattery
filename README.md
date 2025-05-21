@@ -135,6 +135,7 @@ pibattery/
 ├─ charge.php # Laadlogica beheer
 └─ domoticz.php # Koppeling met Domoticz
 
+
 ---
 
 ## Configuratie
