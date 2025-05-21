@@ -179,7 +179,9 @@ Mijn dank voor dit project gaat uit naar:
 ## Handige linkjes
 
 Om je opweg te helpen en inspiratie op te doen hier wat handige linkjes waar ik mijn project op gebasseerd hebt.<br/>
-- Tweaker: Eenvoudige thuisaccu samenstellen [Eenvoudige thuisaccu samenstellen](https://gathering.tweakers.net/forum/list_messages/2253584/0)
+- Tweaker: [Eenvoudige thuisaccu samenstellen](https://gathering.tweakers.net/forum/list_messages/2253584/0)
+- ehoco.nl: [Een eenvoudige thuisbatterij zelf maken](https://ehoco.nl/eenvoudige-thuisbatterij-zelf-maken/)
+
 ---
 
 **Veel plezier met PiBattery en een slimme, duurzame thuisbatterij!**
