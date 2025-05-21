@@ -1,35 +1,35 @@
 ![Banner](https://github.com/user-attachments/assets/143c1ac7-f58b-4016-88dd-2aac3e8cd6f2)
 # PiBattery – Eenvoudige Zelfbouw Thuisbatterij
 
-**PiBattery** Er niets zo veranderlijk als onze energie-markt en Den Haag is nog wispelturiger dan het Nederlandse weer.
-In de aanloop naar terugleverkosten en einde saldering zocht ik naar een goedkope en simpele oplossing om kosten te drukken.
-Mede door stijgende energiekosten en komende maatregelen die Den Haag en de energieboeren voor ogen hebben wordt energieopslag thuis steeds aantrekkelijker.
-De huidige prijzen van kant&klare thuisbatterijen zijn wat mij betreft ook nog niet aantrekkelijk genoeg.
-En ik verwacht met de komende populariteit van de thuisbatterij dat de prijzen op basis van vraag en aanbod alleen maar zullen stijgen.
-Een zelfbouw thuisbatterij kan een betaalbare oplossing zijn om de overtollige energie die je zelf opwekt op te slaan.
-In mijn zoektocht naar een oplossing kwam ik uit in een thread op Tweakers.
-Waarin een goedkope oplossing word besproken en daar op voortbordurend wil ik graag mij setup en scripts met jullie delen.
-Ik leg hier de simpele basis principes uit, diep in de materie ga ik niet.
-Verwacht dat diegene die hiermee aan de slag gaat enige technischekennis, php en aanverwante hebben.
+**PiBattery** Er niets zo veranderlijk als onze energie-markt en Den Haag is nog wispelturiger dan het Nederlandse weer.<br/>
+In de aanloop naar terugleverkosten en einde saldering zocht ik naar een goedkope en simpele oplossing om kosten te drukken.<br/>
+Mede door stijgende energiekosten en komende maatregelen die Den Haag en de energieboeren voor ogen hebben wordt energieopslag thuis steeds aantrekkelijker.<br/>
+De huidige prijzen van kant&klare thuisbatterijen zijn wat mij betreft ook nog niet aantrekkelijk genoeg.<br/>
+En ik verwacht met de komende populariteit van de thuisbatterij dat de prijzen op basis van vraag en aanbod alleen maar zullen stijgen.<br/>
+Een zelfbouw thuisbatterij kan een betaalbare oplossing zijn om de overtollige energie die je zelf opwekt op te slaan.<br/>
+In mijn zoektocht naar een oplossing kwam ik uit in een thread op Tweakers.<br/>
+Waarin een goedkope oplossing word besproken en daar op voortbordurend wil ik graag mij setup en scripts met jullie delen.<br/>
+Ik leg hier de simpele basis principes uit, diep in de materie ga ik niet.<br/>
+Verwacht dat diegene die hiermee aan de slag gaat enige technischekennis, php en aanverwante hebben.<br/>
 
 ---
 ## Doel
 
-**Doel** met deze setup is om in de nachten en avonden aan te sturen op NOM (nul op de meter).
-En overdag de grootste verbruiks pieken wil afvlakken.
-Handelen zoals inkoop/verkoop in combinatie met een dynamisch contract is niet mijn doel.
+**Doel** met deze setup is om in de nachten en avonden aan te sturen op NOM (nul op de meter).<br/>
+En overdag de grootste verbruiks pieken wil afvlakken.<br/>
+Handelen zoals inkoop/verkoop in combinatie met een dynamisch contract is niet mijn doel.<br/>
 
-Ik tracht eerder de maandelijkse kosten te drukken door overshot van mijn zonnepanelen op te slaan in de batterij en dat scheelt het een paar centen terugleverkosten.
-En doordat ik die opgeslagen energie 's avonds en 's nachts weer gebruik scheelt het afnamen van het net.
-En daarmee probeer ik de maandelijkse energiekosten te drukken.
+Ik tracht eerder de maandelijkse kosten te drukken door overshot van mijn zonnepanelen op te slaan in de batterij en dat scheelt het een paar centen terugleverkosten.<br/>
+En doordat ik die opgeslagen energie 's avonds en 's nachts weer gebruik scheelt het afnamen van het net.<br/>
+En daarmee probeer ik de maandelijkse energiekosten te drukken.<br/>
 
-De setup die ik hier heb hangen is/lijkt op een kant en klare stekker batterij zoals die van HomeWizard of Marstek ect.
-Alleen is het een zelfbouw en mist dus een gelikt kastje.
-En in tegenstelling tot de grote jongens is het een systeem die niet offgrid kan.
-Verder maak ik gebruik van twee EcoFlow Powerstream 800w omvormers.
-En omdat dit stekker-omvormers zijn is de injectie net zoals de kant en klare oplossingen beperkt to 800w.
-En aangezien ik met 25,6v LFP batterijen werk is de injectie beperkt tot max 600w per omvormer.
-Maar in mijn thuisituatie is 1200w injectie meer dan genoeg.
+De setup die ik hier heb hangen is/lijkt op een kant en klare stekker batterij zoals die van HomeWizard of Marstek ect.<br/>
+Alleen is het een zelfbouw en mist dus een gelikt kastje.<br/>
+En in tegenstelling tot de grote jongens is het een systeem die niet offgrid kan.<br/>
+Verder maak ik gebruik van twee EcoFlow Powerstream 800w omvormers.<br/>
+En omdat dit stekker-omvormers zijn is de injectie net zoals de kant en klare oplossingen beperkt to 800w.<br/>
+En aangezien ik met 25,6v LFP batterijen werk is de injectie beperkt tot max 600w per omvormer.<br/>
+Maar in mijn thuisituatie is 1200w injectie meer dan genoeg.<br/>
 
 ---
 
