@@ -89,7 +89,7 @@ Ook met korte stroompieken in huis wordt rekening gehouden: het script reageert 
 Totale kosten voor deze 7,5kWh thuisbatterij waren, door slim inkopen, €2100.
 
 <p align="center">
-<img src="images/setup.jpg" alt="Mijn batterij" width="50%">
+<img src="images/setup.jpg" alt="Mijn batterij" width="75%">
 </p>
 
 ---
@@ -114,7 +114,7 @@ Samengevat:
    Verder zijn de batterijen van het merk Powerqueen en hebben hun eigen BMS en heb elke batterij afzonderlijk afgezekerd met een 30A zekering.
    
 <p align="center">
-<img src="images/thuisbatterij.png" alt="Mijn batterij" width="50%">
+<img src="images/thuisbatterij.png" alt="Mijn batterij" width="75%">
 </p>   
 <p align="center"><small>Bron: Foto van ehoco.nl</small></p>
 
