@@ -1,187 +1,186 @@
 ![Banner](https://github.com/user-attachments/assets/143c1ac7-f58b-4016-88dd-2aac3e8cd6f2)
+
 # PiBattery – Eenvoudige Zelfbouw Thuisbatterij
 
-**PiBattery** Er niets zo veranderlijk als onze energie-markt en Den Haag is nog wispelturiger dan het Nederlandse weer.<br/>
-In de aanloop naar terugleverkosten en einde saldering zocht ik naar een goedkope oplossing om kosten te drukken.<br/>
-Mede door stijgende energiekosten en komende maatregelen die Den Haag en de energieboeren voor ogen hebben wordt energieopslag thuis steeds aantrekkelijker.<br/>
-De huidige prijzen van kant&klare thuisbatterijen zijn wat mij betreft ook nog niet aantrekkelijk genoeg.<br/>
-En ik verwacht met de komende populariteit van de thuisbatterij dat de prijzen op basis van vraag en aanbod alleen maar zullen stijgen.<br/>
-Een zelfbouw thuisbatterij kan een betaalbare oplossing zijn om de overtollige energie die je zelf opwekt op te slaan.<br/>
-In mijn zoektocht naar een oplossing kwam ik uit in een thread op Tweakers.<br/>
-Waarin een goedkope oplossing word besproken en daar op voortbordurend wil ik graag mij setup en scripts met jullie delen.<br/>
-Ik leg hier de simpele basis principes uit, diep in de materie ga ik niet.<br/>
-Verwacht dat diegene die hiermee aan de slag gaat enige technischekennis, php en aanverwante hebben.<br/>
+**PiBattery**  
+Er is niets zo veranderlijk als de energiemarkt, en Den Haag is nog wispelturiger dan het Nederlandse weer.  
+Met het naderende einde van de salderingsregeling en de invoering van terugleverkosten zocht ik naar een betaalbare oplossing om mijn energiekosten te drukken.  
+Door de stijgende kosten en de maatregelen van overheid en energiebedrijven wordt thuis energie opslaan steeds aantrekkelijker.  
+De prijzen van kant-en-klare thuisbatterijen zijn voor mij nog niet aantrekkelijk genoeg, en ik verwacht dat die met de toenemende populariteit alleen maar zullen stijgen.  
+Een zelfbouw-thuisbatterij is een betaalbaar alternatief om overtollige zelfopgewekte energie op te slaan.  
+Tijdens mijn zoektocht kwam ik in een thread op Tweakers een goedkope oplossing tegen, en daarop voortbordurend wil ik graag mijn setup en scripts met jullie delen.  
+Ik leg hier de simpele basisprincipes uit; voor diepgaande details ga ik ervan uit dat wie hiermee aan de slag wil, enige technische kennis, ervaring met PHP en aanverwante zaken heeft.  
 
 ---
+
 ## Doel
 
-**Doel** met deze setup is om in de nachten en avonden aan te sturen op NOM (nul op de meter).<br/>
-En overdag de grootste verbruiks pieken wil afvlakken.<br/>
-Handelen zoals inkoop/verkoop in combinatie met een dynamisch contract is niet mijn doel.<br/>
+Het doel van deze setup is om in de nachten en avonden te sturen op NOM (Nul Op de Meter),  
+en overdag de grootste verbruikspieken af te vlakken.  
+Handelen (inkoop/verkoop) in combinatie met een dynamisch contract is niet mijn doel.  
 
-Ik tracht eerder de maandelijkse kosten te drukken door overshot van mijn zonnepanelen op te slaan in de batterij en dat scheelt het een paar centen terugleverkosten.<br/>
-En doordat ik die opgeslagen energie 's avonds en 's nachts weer gebruik scheelt het afnamen van het net.<br/>
-En daarmee probeer ik de maandelijkse energiekosten te drukken.<br/>
+Ik probeer vooral de maandelijkse kosten te drukken door het overschot van mijn zonnepanelen op te slaan in de batterij, zodat ik minder terugleverkosten betaal.  
+De opgeslagen energie gebruik ik ’s avonds en ’s nachts weer, wat mijn afname van het net vermindert.  
+Zo hoop ik de maandelijkse energiekosten verder te verlagen.
 
-De setup die ik hier heb hangen is/lijkt op een kant en klare stekker batterij zoals die van HomeWizard of Marstek ect.<br/>
-Alleen is het een zelfbouw en mist dus een gelikt kastje.<br/>
-En in tegenstelling tot de grote jongens is het een systeem die niet offgrid kan.<br/>
-Verder maak ik gebruik van twee EcoFlow Powerstream 800w omvormers.<br/>
-En omdat dit stekker-omvormers zijn is de injectie net zoals de kant en klare oplossingen beperkt tot 800w.<br/>
+De setup die ik hier beschrijf lijkt op een kant-en-klare stekkerbatterij zoals die van HomeWizard of Marstek,  
+maar is dus een zelfbouwvariant zonder gelikt kastje.  
+In tegenstelling tot de grote merken is dit geen off-grid systeem.  
+Ik gebruik twee EcoFlow Powerstream 800W omvormers.  
+Omdat dit stekkeromvormers zijn, is de netinjectie – net als bij kant-en-klare oplossingen – beperkt tot 800W.
 
 ---
 
-## Basis Werking
-**Het laden** van deze setup is simpel.<br/>
-De php scripts berekenen aan de hand van de instellingen en configuratie of er geladen mag worden.<br/>
-Hij start de laders op basis van het pv-overschot en kan de batterijen in mijn setup laden met:<br/>
-- **350w**<br/>
-- **700w**<br/>
-- **1000w** of **1300w**<br/>
-Dit hangt dus af van het beschikbare overschot.<br/>
-</br>
-Op basis van verschillende calculaties kan hij de laders individueel in- en uitschakelen.<br/>
-Dit schakelen word gedaan door de Homewizard lokale API aan te sturen.<br/>
-En heeft een schakel pauze functie om onnodig in- uitschakelen te voorkomen.<br/>
-Tevens berekend hij het laadverlies om in de debug outut de correcte batterij SOC en laad- ontlaad tijden weer te geven.<br/>
-<br/>
+## Basiswerking
 
-**Het ontladen** is nog simpeler.<br/>
-Hier word op basis van het P1 verbruik uitgerekend of er teveel verbruik van het NET is.<br/>
-En hierop word de benodigde wattage wat nodig is via de API van EcoFlow de omvormers aangestuurd.<br/>
-Op deze manier word er dus aangestuurd op NOM (Nul Op De Meter).<br/>
-Tevens word er rekening gehouden met zomer- en winterijd.<br/>
-Dat wil zeggen dat er bepaalde zaken anders worden geregeld als het zomer- of wintertijd is.<br/>
-Denk dat bijvoorbeeld dat de batterij minder diep word ontladen om langdurige slechte pv-productie dagen te overbruggen.<br/>
-Ook word er rekening gehouden met korte hoge stroom pieken.<br/>
-Het kan zijn dat bepaalde apparaten in huis heel even stroom verbruiken.<br/>
-Het script zal hier niet direct op reageren om zo onnodig schakelen te voorkomen.<br/>
-  
+**Het laden** is eenvoudig:  
+De PHP-scripts berekenen aan de hand van de instellingen en configuratie of er geladen mag worden.  
+Ze starten de laders op basis van het PV-overschot en kunnen de batterijen in mijn setup laden met:
+- **350W**
+- **700W**
+- **1000W** of **1300W**
+
+Afhankelijk van het beschikbare overschot.  
+Op basis van diverse berekeningen kunnen de laders individueel in- en uitgeschakeld worden.  
+Dit schakelen gebeurt via de lokale HomeWizard API.  
+Er is een schakelpauze om onnodig schakelen te voorkomen.  
+Verder berekent het script het laadverlies, zodat in de debug-output het correcte batterij-SOC en de laad- en ontlaadtijden weergegeven worden.
+
+**Het ontladen** is nog eenvoudiger:  
+Op basis van het P1-verbruik wordt bepaald of er te veel van het net wordt verbruikt.  
+Hierop wordt het benodigde vermogen via de EcoFlow API naar de omvormers gestuurd.  
+Op deze manier stuurt het systeem op NOM (Nul Op De Meter).  
+Er wordt rekening gehouden met zomer- en wintertijd;  
+bijvoorbeeld dat de batterij in de winter minder diep wordt ontladen om slechte PV-dagen te overbruggen.  
+Ook met korte stroompieken in huis wordt rekening gehouden: het script reageert niet direct, om onnodig schakelen te voorkomen.
+
 ---
 
 ## Functies & Mogelijkheden
 
-- **Volautomatisch laden/ontladen** van de batterijen word gedaan op basis van P1-verbruik, zonne-opbrengst.
-- **Slimme schakeling** van laders en omvormers via HomeWizard P1-meter, kWh-meter, energy-sockets en directe API-aansturing.
-- **Laadverlies-meting** word automatisch berekend en gecorrigeerd op basis van laden en ontladen.
-- **Ondersteuning voor Domoticz**: actuele batterijstatus en energiegegevens worden doorgeven aan Domoticz.
-- **Pauzefunctie en tijdschema’s**: voorkom onnodig laden bij wolkendips of slechte zonneprognose.
-- **Meertaligheid**: zowel Nederlands als Engels.
-- **Uitgebreide logging en debug-output** voor probleemoplossing en finetuning.
-- **Fase bescherming**: Laders word direct uitgeschakeld indien de Fase waarop de laders zijn aangesloten een te hoog verbruik heeft.
-- **Extra koeling** in de vorm van 12cm pc fans op de omvormers worden automatisch aangestuurd.
+- **Volautomatisch laden/ontladen** van de batterijen op basis van P1-verbruik en zonne-opbrengst
+- **Slimme schakeling** van laders en omvormers via HomeWizard P1-meter, kWh-meter, energy-sockets en directe API-aansturing
+- **Laadverliesmeting** wordt automatisch berekend en gecorrigeerd op basis van laden en ontladen
+- **Ondersteuning voor Domoticz**: actuele batterijstatus en energiegegevens worden doorgegeven aan Domoticz
+- **Pauzefunctie en tijdschema’s**: voorkomt onnodig laden bij wolkendips of slechte zonneprognose
+- **Meertaligheid**: zowel Nederlands als Engels
+- **Uitgebreide logging en debug-output** voor probleemoplossing en finetuning
+- **Fasebescherming**: laders worden direct uitgeschakeld als de fase waarop ze aangesloten zijn te veel vermogen trekt
+- **Extra koeling**: 12cm PC-fans op de omvormers worden automatisch aangestuurd
 
 ---
 
 ## Mijn Setup & Kosten
-- 1x Raspberry Pi4 met behuizing, USB 64gb opslag en adapter
-- 1x HomeWizard p1-meter
-- 1x HomeWizard 3fase kWh-meter (realtime pv opwek uitlezen)
+
+- 1x Raspberry Pi 4 met behuizing, 64GB USB-opslag en adapter
+- 1x HomeWizard P1-meter
+- 1x HomeWizard 3-fase kWh-meter (realtime PV-opwek uitlezen)
 - 6x HomeWizard Energy-sockets
-- 2x EcoFlow Powerstream 800w omvormers
+- 2x EcoFlow Powerstream 800W omvormers
 - 2x EcoFlow Coolingdecks
-- 2x 12cm USB powered pc fans
-- 2x Victron IP22 12a laders
-- 1x Powerqueen 20a LifePo4 lader
-- 3x Powerqueen 25,6v 100ah LFP batterijen in parallel
-- Klein materiaal zoals zekeringen, bekabeling en batterij schakelaar ect 
-Totale kosten voor deze 7,5kWh thuisbatterij waren door slim inkopen €2100<br/>
+- 2x 12cm USB-powered PC-fans
+- 2x Victron IP22 12A laders
+- 1x Powerqueen 20A LiFePO4-lader
+- 3x Powerqueen 25,6V 100Ah LFP-batterijen in parallel
+- Klein materiaal zoals zekeringen, bekabeling, batterijswitch etc.
+
+Totale kosten voor deze 7,5kWh thuisbatterij waren, door slim inkopen, €2100.
 
 ---
 
 ## Installatie
 
-**De installatie** bespreek ik hier niet want ga er vanuit dat diegene die hier mee wil spelen enige kennis van zaken heeft.<br/>
-Maar in het kort komt het er hier op neer.<br/>
-Je draait deze scripts op:</br>
+**De installatie** wordt hier niet tot in detail besproken;  
+ik ga ervan uit dat de gebruiker enige technische kennis heeft.  
+Samengevat:
+
 1. **Raspberry Pi** (of andere Linux SBC/VM)
-2. **PHP 8.x** geïnstalleerd  
-3. **piBattery.php** word elke x seconden via cron aangeroepen
-4. **HomeWizard** API aansturing voor P1-meter, kWh-meter & energy-sockets is ingeschakeld    
-5. **EcoFlow API** is open gesteld via EcoFlow IoT Developer Platform voor API-sturing   
-6. (Optioneel) **Domoticz** voor het door sturen van alle data om te loggen
-7. **Elektrische** gedeelte vereist kennis, vertrouw je het niet dan laat je iemand met kennis dit uitvoeren.
-8. De batterijen zijn parallel aangesloten.
-Deze zijn op hun beurt weer aangesloten op de PV ingang op de omvormers.<br/>
-De omvormers zijn op hun beurt weer met een stekker in een vrije WCD gestoken.<br/>
-In mijn geval twee vrije groepen.<br/>
-De laders zijn parallel aangesloten op de batterijen.<br/>
-Hier een handig linkje met een wat uitgebreide uitleg:<br/>
+2. **PHP 8.x** geïnstalleerd
+3. **piBattery.php** wordt elke X seconden via cron uitgevoerd
+4. **HomeWizard** API-aansturing voor P1-meter, kWh-meter & energy-sockets staat aan  
+5. **EcoFlow API** is opengesteld via het EcoFlow IoT Developer Platform  
+6. (Optioneel) **Domoticz** voor het doorsturen en loggen van alle data  
+7. **Elektrisch** deel vereist kennis; vertrouw je het niet, laat dit door een expert uitvoeren
+8. De batterijen zijn parallel aangesloten en verbonden met de PV-ingang van de omvormers  
+   De omvormers zijn met een stekker op een vrije groep aangesloten  
+   De laders zijn parallel aangesloten op de batterijen
+
+Hier vind je een handig linkje met een uitgebreide uitleg:  
 https://ehoco.nl/eenvoudige-thuisbatterij-zelf-maken/
 
 ---
 
 ## Bestands- en Mappenstructuur
 
-```
 pibattery/
 │
-├─ pibattery.php                # Hoofdscript en word via cron elke 20sec aangeroepen
+├─ pibattery.php # Hoofdscript, elke 20 sec via cron uitgevoerd
 ├─ bootstrap/
-│   └─ bootstrap.php            # 1e initialisatie
+│ └─ bootstrap.php # Eerste initialisatie
 ├─ config/
-│   └─ config.php               # Instellingen (hardware, batterijen, API’s, e.d.)
+│ └─ config.php # Instellingen (hardware, batterijen, API’s, enz.)
 ├─ data/
-│   ├─ timeStamp.json           # Tijdsregistratie laatste runs
-│   └─ variables.json           # Alle variabelen en tijdelijke data
+│ ├─ timeStamp.json # Tijdsregistratie laatste runs
+│ └─ variables.json # Alle variabelen en tijdelijke data
 ├─ includes/
-│   ├─ ecoflow_api_class.php    # API-integratie voor EcoFlow apparaten
-│   ├─ functions.php            # Algemene functies
-│   ├─ helpers.php              # Diverse hulpjes en utilities
-│   └─ variables.php            # Variabelen en dynamische waarden
+│ ├─ ecoflow_api_class.php # API-integratie voor EcoFlow apparaten
+│ ├─ functions.php # Algemene functies
+│ ├─ helpers.php # Diverse hulpfuncties en utilities
+│ └─ variables.php # Variabelen en dynamische waarden
 ├─ lang/
-│   ├─ langNL.php               # Nederlandse taal
-│   └─ langEN.php               # Engelse taal
+│ ├─ langNL.php # Nederlandse taal
+│ └─ langEN.php # Engelse taal
 └─ scripts/
-    ├─ baseload.php             # Baseload (basisvermogen) sturing
-    ├─ charge.php               # Laadlogica beheer
-    └─ domoticz.php             # Koppeling met Domoticz
-```
+├─ baseload.php # Baseload (basisvermogen) sturing
+├─ charge.php # Laadlogica beheer
+└─ domoticz.php # Koppeling met Domoticz
+
 
 ---
 
 ## Configuratie
 
-Alle belangrijke instellingen vind je in `config/config.php`. Hier stel je onder meer in:
+Alle belangrijke instellingen vind je in `config/config.php`.  
+Hier stel je onder andere in:
 - IP-adressen en API-keys voor HomeWizard/EcoFlow
 - Batterijcapaciteit, type en spanning
 - Laad-/ontlaadregimes (dag/nacht)
-- Pauzetijden, hysterese en meetdrempels
+- Pauzetijden, hysterese en drempelwaarden
 - Optionele Domoticz-koppelingen (met IDX-nummers)
 
 ---
 
 ## Domoticz-integratie (optioneel)
 
-Wil je actuele waarden in Domoticz zien?<br/> 
-Vul dan je Domoticz-IP en de juiste IDX-nummers in voor de gewenste dummy devices in de configuratie.<br/>  
-Het script `scripts/domoticz.php` regelt automatische updates van je batterij- en energiestatus in Domoticz.<br/>
+Wil je actuele waarden in Domoticz zien?  
+Vul dan je Domoticz-IP en de juiste IDX-nummers in voor de gewenste dummy devices in de configuratie.  
+Het script `scripts/domoticz.php` zorgt voor automatische updates van je batterij- en energiestatus in Domoticz.
 
 ---
 
 ## Bijdragen & Licentie
 
-Dit project is open source en bedoeld om samen te verbeteren.<br/> 
-Pull requests, feedback en suggesties zijn welkom.<br/>
+Dit project is open source en bedoeld om samen te verbeteren.  
+Pull requests, feedback en suggesties zijn welkom.
 
 ---
 
 ## Grote dank
 
 Mijn dank voor dit project gaat uit naar:
-- Thijsmans voor het beschikbaar stellen van de EcoFlow API aansturing
-- ehoco.nl voor de inspiratie van dit project
-- salipander voor starten van "Eenvoudige thuisaccu samenstellen" topic op Tweakers
+- Thijsmans voor het beschikbaar stellen van de EcoFlow API-aansturing
+- ehoco.nl voor de inspiratie voor dit project
+- salipander voor het starten van het topic “Eenvoudige thuisaccu samenstellen” op Tweakers
 - En allen die ik vergeten ben ;-)
 
 ---
 
 ## Handige linkjes
 
-Om je opweg te helpen en inspiratie op te doen hier wat handige linkjes waar ik mijn project op gebasseerd hebt.<br/>
-- Tweaker: [Eenvoudige thuisaccu samenstellen](https://gathering.tweakers.net/forum/list_messages/2253584/0)
+Om je op weg te helpen en inspiratie op te doen, hier enkele handige links waar ik mijn project op gebaseerd heb:  
+- Tweakers: [Eenvoudige thuisaccu samenstellen](https://gathering.tweakers.net/forum/list_messages/2253584/0)
 - ehoco.nl: [Een eenvoudige thuisbatterij zelf maken](https://ehoco.nl/eenvoudige-thuisbatterij-zelf-maken/)
 
 ---
 
-**Veel plezier met PiBattery en een slimme, duurzame thuisbatterij!**
+**Veel plezier met mijn PiBattery-bijdrage!**
