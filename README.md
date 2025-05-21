@@ -42,6 +42,22 @@ Maar in mijn thuisituatie is 1200w injectie meer dan genoeg.<br/>
 - **Pauzefunctie en tijdschema’s**: voorkom onnodig laden bij wolkendips of slechte zonneprognose.
 - **Meertaligheid**: zowel Nederlands als Engels.
 - **Uitgebreide logging en debug-output** voor probleemoplossing en finetuning.
+- **Fase bescherming**: Laders word direct uitgeschakeld indien de Fase waarop de laders zijn aangesloten een te hoog verbruik heeft.
+- **Extra koeling** in de vorm van 12cm pc fans op de omvormers worden automatisch aangestuurd.
+
+---
+
+## Mijn Setup & Kosten
+- 1x HomeWizard p1-meter
+- 1x HomeWizard 3fase kWh-meter (realtime pv opwek uitlezen)
+- 6x HomeWizard Energy-sockets
+- 2x EcoFlow Powerstream 800w omvormers
+- 2x EcoFlow Coolingdecks
+- 2x 12cm USb powered pc fans
+- 2x Victron IP22 12a laders
+- 1x Powerqueen 20a LifePo4 lader
+- 3x Powerqueen 25,6v 100ah LFP batterijen
+- Klein materiaal zoals zekeringen, bekabeling en batterij schakelaar ect  
 
 ---
 
