@@ -112,28 +112,32 @@ https://ehoco.nl/eenvoudige-thuisbatterij-zelf-maken/
 
 ## Bestands- en Mappenstructuur
 
-pibattery/
+```
+pibatteryTest/
 │
-├─ pibattery.php # Hoofdscript, elke 20 sec via cron uitgevoerd
+├─ pibattery.php                # Hoofdscript voor automatisering en logica
 ├─ bootstrap/
-│ └─ bootstrap.php # Eerste initialisatie
+│   └─ bootstrap.php            # Opstartlogica en initialisatie
 ├─ config/
-│ └─ config.php # Instellingen (hardware, batterijen, API’s, enz.)
+│   └─ config.php               # Instellingen (hardware, batterijen, API’s, e.d.)
 ├─ data/
-│ ├─ timeStamp.json # Tijdsregistratie laatste runs
-│ └─ variables.json # Alle variabelen en tijdelijke data
+│   ├─ timeStamp.json           # Tijdsregistratie laatste runs
+│   └─ variables.json           # Alle variabelen en tijdelijke data
 ├─ includes/
-│ ├─ ecoflow_api_class.php # API-integratie voor EcoFlow apparaten
-│ ├─ functions.php # Algemene functies
-│ ├─ helpers.php # Diverse hulpfuncties en utilities
-│ └─ variables.php # Variabelen en dynamische waarden
+│   ├─ ecoflow_api_class.php    # API-integratie voor EcoFlow apparaten
+│   ├─ functions.php            # Algemene functies (helpers, berekeningen)
+│   ├─ helpers.php              # Diverse hulpjes en utilities
+│   └─ variables.php            # Variabelen en dynamische waarden
 ├─ lang/
-│ ├─ langNL.php # Nederlandse taal
-│ └─ langEN.php # Engelse taal
+│   ├─ langNL.php               # Nederlandse taal
+│   └─ langEN.php               # Engelse taal
 └─ scripts/
-├─ baseload.php # Baseload (basisvermogen) sturing
-├─ charge.php # Laadlogica beheer
-└─ domoticz.php # Koppeling met Domoticz
+    ├─ baseload.php             # Baseload (basisvermogen) sturing
+    ├─ charge.php               # Laadlogica en batterijbeheer
+    └─ domoticz.php             # Koppeling met Domoticz
+```
+
+---
 
 
 ---
