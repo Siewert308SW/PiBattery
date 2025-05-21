@@ -15,7 +15,7 @@ Ik leg hier de simpele basisprincipes uit; voor diepgaande details ga ik ervan u
 
 ## Doel
 
-Het doel van deze setup is om in de nachten en avonden te sturen op NOM (Nul Op de Meter),  
+**Het doel** van deze setup is om in de nachten en avonden te sturen op NOM (Nul Op de Meter),  
 en overdag de grootste verbruikspieken af te vlakken.  
 Handelen (inkoop/verkoop) in combinatie met een dynamisch contract is niet mijn doel.  
 
@@ -136,9 +136,6 @@ pibatteryTest/
     ├─ charge.php               # Laadlogica en batterijbeheer
     └─ domoticz.php             # Koppeling met Domoticz
 ```
-
----
-
 
 ---
 
