@@ -60,6 +60,10 @@ Er wordt rekening gehouden met zomer- en wintertijd;
 bijvoorbeeld dat de batterij in de winter minder diep wordt ontladen om slechte PV-dagen te overbruggen.  
 Ook met korte stroompieken in huis wordt rekening gehouden: het script reageert niet direct, om onnodig schakelen te voorkomen.
 
+<p align="center">
+<img src="assets/demo.gif" alt="Demo animatie" width="75%">
+</p>
+
 ---
 
 ## Functies & Mogelijkheden
@@ -88,7 +92,7 @@ Ook met korte stroompieken in huis wordt rekening gehouden: het script reageert 
 - 2x Victron IP22 12A laders
 - 1x Powerqueen 20A LiFePO4-lader
 - 3x Powerqueen 25,6V 100Ah LFP-batterijen in parallel
-- Klein materiaal zoals zekeringen, bekabeling, batterijswitch etc.
+- Klein materiaal zoals zekeringen, bekabeling, busbars, batterij switch etc ect.
 
 Totale kosten voor deze 7,5kWh thuisbatterij waren, door slim inkopen, €2100.
 
