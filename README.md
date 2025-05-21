@@ -91,7 +91,7 @@ Totale kosten voor deze 7,5kWh thuisbatterij waren door slim inkopen €2100<br/
 
 ## Installatie
 
-** De installatie** bespreek ik hier niet want ga er vanuit dat diegene die hier mee wil spelen enige kennis van zaken heeft.<br/>
+**De installatie** bespreek ik hier niet want ga er vanuit dat diegene die hier mee wil spelen enige kennis van zaken heeft.<br/>
 Maar in het kort komt het er hier op neer.<br/>
 Je draait deze scripts op:</br>
 1. **Raspberry Pi** (of andere Linux SBC/VM)
