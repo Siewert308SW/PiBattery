@@ -54,7 +54,7 @@
 // = -------------------------------------------------	
 // = Batt% calibration
 // = -------------------------------------------------
-	if ($batteryPct != 100 && $pvAvInputVoltage >= ($batteryVolt + 1.3)
+	if ($pvAvInputVoltage > ($batteryVolt + 1.3)
 		&& $hwChargerOneStatus == 'Off' && $hwChargerTwoStatus == 'Off' && $hwChargerThreeStatus == 'Off'
 		&& (!isset($vars['battery_calibrated']) || $vars['battery_calibrated'] !== true)
 		) {
