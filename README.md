@@ -95,6 +95,7 @@ Totale kosten voor deze 7,5kWh thuisbatterij waren, door slim inkopen, €2100.
 <p align="center">
 <img src="images/setup.jpg" alt="Mijn batterij" width="75%">
 </p>
+<p align="center"><small>Mijn setup in de garage</small></p>
 
 ---
 
@@ -166,7 +167,13 @@ Hier stel je onder andere in:
 - Laad-/ontlaadregimes (dag/nacht)
 - Pauzetijden, hysterese en drempelwaarden
 - Optionele Domoticz-koppelingen (met IDX-nummers)
+- pibattery.php roep je elke 20seconden aan via cronjob
+- Via een terminal kun je het script ook handmatig aanroepen om te finetunen en te debuggen
 
+<p align="center">
+<img src="images/terminal.png" alt="Mijn batterij" width="75%">
+</p>   
+<p align="center"><small>Terminal output</small></p>
 ---
 
 ## Domoticz-integratie (optioneel)
