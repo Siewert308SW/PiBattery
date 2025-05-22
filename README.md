@@ -31,8 +31,9 @@ Omdat dit stekkeromvormers zijn, is de netinjectie net als bij kant-en-klare opl
 Maar in een configuratie als de mijne (25,6v) is dat 600w per omvormer.
 
 <p align="center">
-<img src="images/verbruik.png" alt="Mijn batterij" width="75%">
+<img src="images/verbruik.png" alt="Mijn verbruik" width="75%">
 </p>
+<p align="center"><small>Een productie/verbruiks dag</small></p>
 
 ---
 
@@ -93,7 +94,7 @@ Ook met korte stroompieken in huis wordt rekening gehouden: het script reageert 
 Totale kosten voor deze 7,5kWh thuisbatterij waren, door slim inkopen, €2100.
 
 <p align="center">
-<img src="images/setup.jpg" alt="Mijn batterij" width="75%">
+<img src="images/setup.jpg" alt="Mijn setup" width="75%">
 </p>
 <p align="center"><small>Mijn setup in de garage</small></p>
 
@@ -120,7 +121,7 @@ Samengevat:
    En het is belangrijk om API toegang te verkrijgen via EcoFlow IOT Developers, anders kun je de omvormer niet aansturen.
    
 <p align="center">
-<img src="images/thuisbatterij.png" alt="Mijn batterij" width="75%">
+<img src="images/thuisbatterij.png" alt="Voorbeeld" width="75%">
 </p>   
 <p align="center"><small>Bron: Foto van ehoco.nl</small></p>
 
@@ -171,7 +172,7 @@ Hier stel je onder andere in:
 - Via een terminal kun je het script ook handmatig aanroepen om te finetunen en te debuggen
 
 <p align="center">
-<img src="images/terminal.png" alt="Mijn batterij" width="75%">
+<img src="images/terminal.png" alt="Terminal output" width="75%">
 </p>   
 <p align="center"><small>Terminal output</small></p>
 ---
