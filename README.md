@@ -133,9 +133,9 @@ https://ehoco.nl/eenvoudige-thuisbatterij-zelf-maken/
 ```
 pibatteryTest/
 │
-├─ pibattery.php                # Hoofdscript voor automatisering en logica
+├─ pibattery.php                # Hoofdscript voor automatisering en deze roep je elke 20sec aan via cronjob
 ├─ bootstrap/
-│   └─ bootstrap.php            # Opstartlogica en initialisatie
+│   └─ bootstrap.php            # Opstart initialisatie
 ├─ config/
 │   └─ config.php               # Instellingen (hardware, batterijen, API’s, e.d.)
 ├─ data/
