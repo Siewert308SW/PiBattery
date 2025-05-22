@@ -61,7 +61,8 @@ bijvoorbeeld dat de batterij in de winter minder diep wordt ontladen om slechte 
 Ook met korte stroompieken in huis wordt rekening gehouden: het script reageert niet direct, om onnodig schakelen te voorkomen.
 
 <img src="assets/baseload_example.gif" alt="Demo animatie" width="75%">
-![til](assets/baseload_example.gif)
+![til](./assets/baseload_example.gif)
+
 ---
 
 ## Functies & Mogelijkheden
