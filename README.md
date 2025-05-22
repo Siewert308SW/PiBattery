@@ -60,10 +60,6 @@ Er wordt rekening gehouden met zomer- en wintertijd;
 bijvoorbeeld dat de batterij in de winter minder diep wordt ontladen om slechte PV-dagen te overbruggen.  
 Ook met korte stroompieken in huis wordt rekening gehouden: het script reageert niet direct, om onnodig schakelen te voorkomen.
 
-<p align="center">
-<img src="assets/baseload.gif" alt="Demo animatie" width="75%">
-</p>
-
 ---
 
 ## Functies & Mogelijkheden
