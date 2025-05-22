@@ -1,0 +1,14 @@
+{
+    "pauseCharging": false,
+    "charge_session": {
+        "chargeStart": 1035.027,
+        "chargeCalibrated": 1027.347,
+        "dischargeStart": 890.807
+    },
+    "charger_pause_until": 1747815303,
+    "charger_pending_switch": false,
+    "charging_loss": {
+        "chargeStart": 1035.027,
+        "dischargeStart": 890.807
+    }
+}
