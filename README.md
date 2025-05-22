@@ -41,7 +41,10 @@ Maar in een configuratie als de mijne (25,6v) is dat 600w per omvormer.
 
 **Het laden** is eenvoudig:  
 De PHP-scripts berekenen aan de hand van de instellingen en configuratie of er geladen mag worden.  
-Zo starten de laders op basis van het PV-overschot en kunnen de batterijen in mijn setup laden met:
+Zo starten de laders op basis van het PV-overschot en kunnen de batterijen in mijn setup laden met.
+Het script kiest zelf de beste lader combinatie waarbij gekozen kan worden welke lader de master is.
+Dat wil zeggen dat alle combinaties die beschikbaar zijn met teminste de master moet zijn.
+
 - **350W**
 - **700W**
 - **1000W** of **1300W**
