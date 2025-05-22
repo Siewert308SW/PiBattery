@@ -12,7 +12,7 @@
 		}
 	}
 		
-	if (($hwChargerUsage <= $chargerWattsIdle || $hwP1Usage > 1300 || $hwInvReturn != 0 || $hwSolarReturn == 0 || $faseProtect == 1) && ($hwChargerOneStatus == 'On' || $hwChargerTwoStatus == 'On' || $hwChargerThreeStatus == 'On')){			
+	if (($hwChargerUsage <= $chargerWattsIdle || $hwInvReturn != 0 || $hwSolarReturn == 0 || $faseProtect == 1) && ($hwChargerOneStatus == 'On' || $hwChargerTwoStatus == 'On' || $hwChargerThreeStatus == 'On')){			
 		if (!$isManualRun){
 		switchHwSocket('two','Off'); sleep(1);
 		switchHwSocket('three','Off'); sleep(1);
