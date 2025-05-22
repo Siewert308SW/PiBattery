@@ -172,7 +172,7 @@ Hier stel je onder andere in:
 - Via een terminal kun je het script ook handmatig aanroepen om te finetunen en te debuggen
 
 <p align="center">
-<img src="images/terminal.png" alt="Terminal output" width="75%">
+<img src="images/terminal.png" alt="Terminal output" width="50%">
 </p>   
 <p align="center"><small>Terminal output</small></p>
 ---
