@@ -263,7 +263,7 @@
 // = Function to calculate if chargers may be switched
 // = -------------------------------------------------
 	function chargerSet(array $chargers, float $P1ChargerUsage): void {
-		global $chargerhyst, $hwP1Usage, $hwSolarReturn, $vars, $varsFile, $hwChargerUsage, $currentTime, $chargerPause, $piBatteryPath, $debugMode, $debug, $debugLang;
+		global $chargerhyst, $hwP1Usage, $hwSolarReturn, $vars, $varsFile, $hwChargerUsage, $currentTime, $chargerPause, $piBatteryPath, $chargerFastReact, $debugMode, $debug, $debugLang;
 
 		$currentTotal = 0;
 
@@ -437,13 +437,21 @@
 	$currentTimestamp = time();
 
 	if ($pauseUntil >= $currentTimestamp) {
-		if ($debugLang == 'NL'){
-		debugMsg("Pauze actief tot " . date("H:i:s", $pauseUntil) . ", geen actie");
-		} else {
-		debugMsg("Pause active till " . date("H:i:s", $pauseUntil) . ", no action required");	
-		}
+		if ($chargerFastReact === 'yes' && $hwSolarReturn > ($solarHighestProd / 2)) {
+			if ($debugLang == 'NL') {
+				debugMsg("Pauze actief, maar genegeerd vanwege override");
+			} else {
+				debugMsg("Pause active, but overridden due to override");
+			}
 
-		return;
+		} else {
+			if ($debugLang == 'NL') {
+				debugMsg("Pauze actief tot " . date("H:i:s", $pauseUntil) . ", geen actie");
+			} else {
+				debugMsg("Pause active till " . date("H:i:s", $pauseUntil) . ", no action required");
+			}
+			return;
+		}
 	}
 
 	if ($pendingSwitch) {

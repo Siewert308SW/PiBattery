@@ -24,8 +24,8 @@
 
 // = Script Run Intervals
 	$chargeTimer			= 120;								 // Cron timer
-	$baseloadTimer			= 30;								 // Cron timer
-	$domoticzTimer			= 15;								 // Cron timer
+	$baseloadTimer			= 20;								 // Cron timer
+	$domoticzTimer			= 30;								 // Cron timer
 	
 // = Battery variables
 	$batteryVolt            = 25.6;         					 // Battery Voltage
@@ -35,16 +35,18 @@
 // = Inverter variables
 	$ecoflowMaxOutput       = 1150;         					 // Maximum output (Watts) the inverter is allowed to deliver
 	$ecoflowMinOutput       = 100;          					 // Minimum output (Watts); the inverter is allowed to deliver
-	$ecoflowOutputOffSet    = 5;           					     // Subtract this value (Watts) from the new baseload: this part is always imported from the grid to prevent injection
+	$ecoflowOutputOffSet    = 1;           					     // Subtract this value (Watts) from the new baseload: this part is always imported from the grid to prevent injection
 	$ecoflowMaxInvTemp      = 65;           					 // Maximum internal temperature (°C); inverter stops feeding above this temperature
 
 // = Charger variables
 	$chargerWattsIdle       = 200;          					 // Standby Watts of all chargers when the batteries are full
 	$chargerPausePct        = 85;           					 // When battery has been charged 100% till what % has it to drop before charging is allowed again
-	$chargerLoss      		= 0.21493;       					 // Charging loss, virtual variable - After three charge sessions it will be calculated dynamicly	
+	$chargerLoss      		= 0.22079;       					 // Charging loss, virtual variable - After three charge sessions it will be calculated dynamicly	
+	$charging_lossSessions  = 10;								 // How many charge session need for calculating dynamic charge_loss
 	$chargerhyst            = 150;          					 // Only turn off chargers if import exceeds this many Watts (prevents flip-flopping)
-	$chargerPause           = 60;          					     // Delay in seconds before switching chargers (prevents flip-flops)
-
+	$chargerPause           = 60;          					     // Delay in seconds before toggling chargers (prevents flip-flops)
+	$chargerFastReact		= 'yes';							 // Value 'yes' or 'no' if 'yes' chargers will toggle faster when solar production is 50% of less
+	
 // = Phase protection
 	$faseProtection         = 'yes';        				     // Value 'yes' or 'no'
 	$maxFaseWatts           = 4500;         				     // If 'yes' whats the max Watts to guard, all chargers are turned off to prevent overloading

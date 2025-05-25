@@ -88,8 +88,7 @@
 		$newSession = [
 		'charged'     		 => round($chargedkWh, 5),
 		'discharged'     	 => round($dischargedkWh, 5),
-		'loss'        		 => round($sessionLoss, 5),
-		'timestamp'   		 => time()
+		'loss'        		 => round($sessionLoss, 5)
 		];
 
 		$sessions = [];
@@ -114,7 +113,7 @@
 				$sessions[] = $newSession;
 
 // === Remove oldest session				
-		if (count($sessions) > 3) {
+		if (count($sessions) > $charging_lossSessions) {
 		array_shift($sessions);
 		}	
 		writeJsonLocked($sessionFile, $sessions);
@@ -133,7 +132,7 @@
 			}
 		}
 
-		if (count($losses) >= 3) {
+		if (count($losses) >= $charging_lossSessions) {
 			$chargerLoss = array_sum($losses) / count($losses);
 			$vars['charger_loss_dynamic'] = $chargerLoss;
 			writeJsonLocked($varsFile, $vars);
@@ -166,7 +165,7 @@
 // = -------------------------------------------------
 
 // === ChargeTime till 100%
-	if ($hwChargerUsage > 100 && $batteryPct < 100) {
+	if ($hwChargerUsage > $chargerWattsIdle && $batteryPct < 100) {
 		$currentWh = ($batteryPct / 100) * $batteryCapacityWh;
 		
 		$neededWh = $batteryCapacityWh - $currentWh;
@@ -206,4 +205,15 @@
 
 	$varsState = [];
 	$varsState['pauseCharging'] = $vars['pauseCharging'] ?? false;
+	
+// = -------------------------------------------------	
+// = Collect highest solar production value
+// = -------------------------------------------------
+
+	if ($runCharger && $hwSolarReturn < 0 && $chargerFastReact === 'yes') {
+		if (!isset($vars['solarHighestProd']) || $hwSolarReturn < $vars['solarHighestProd']) {
+			$vars['solarHighestProd'] = $hwSolarReturn;
+			writeJsonLocked($varsFile, $vars);
+		}
+	}
 ?>

@@ -124,7 +124,8 @@
 
 	$chargerLoss 			= round($vars['charger_loss_dynamic'] ?? $chargerLoss, 5);	
 	$pauseCharging 			= $vars['pauseCharging'] ?? false;
-
+	$solarHighestProd	    = $vars['solarHighestProd'] ?? -1000;
+	
 // = Various
 	$batteryMinimum = $isWinter ? 25 : $batteryMinimum;
 	
