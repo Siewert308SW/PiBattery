@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>PiBattery Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;600&display=swap');
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Rubik', sans-serif;
+    background: linear-gradient(145deg, #1a1a1a, #0f0f0f);
+    color: #f0f0f0;
+    padding: 10px;
+  }
+
+  h1 {
+    font-size: 1.6rem;
+    color: #4caf50;
+    text-align: center;
+    margin: 10px 0;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 12px;
+    max-width: 100%;
+  }
+
+  .panel {
+    background: #1e1e1e;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .title {
+    font-weight: 600;
+    font-size: 1.2rem;
+    color: #aaa;
+    margin-bottom: 6px;
+  }
+
+  .item {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    font-size: 1.05rem;
+  }
+
+  .status-pill {
+    padding: 2px 10px;
+    border-radius: 12px;
+    background: #555;
+    color: #fff;
+    font-size: 0.9rem;
+  }
+
+  .on { background-color: #4caf50; }
+  .off { background-color: #f44336; }
+  
+ html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+#dashboard {
+  height: 100%;
+  overflow: hidden;
+} 
+</style>
+</head>
+<body>
+  <div id="dashboard" class="grid">
+    <p>Bezig met laden...</p>
+  </div>
+
+  <script>
+    async function updateDashboard() {
+      try {
+        const res = await fetch("http://192.168.178.3:8282/api.php");
+        const data = await res.json();
+
+        const pill = (state) => `<span class="status-pill ${state === 'On' ? 'on' : 'off'}">${state}</span>`;
+
+        const html = `
+          <div class="panel">
+            <div class="title">Batterijstatus</div>
+            <div class="item"><span>SOC</span><span>${data.batteryPct}%</span></div>
+            <div class="item"><span>Voltage</span><span>${data.batteryVoltage} V</span></div>
+            <div class="item"><span>Inhoud</span><span>${data.batteryAvailable} kWh</span></div>
+            <div class="item"><span>Laadverlies</span><span>${data.chargerLoss}%</span></div>
+          </div>
+
+          <div class="panel">
+            <div class="title">Energie</div>
+            <div class="item"><span>P1-Meter</span><span>${data.hwP1Usage} W</span></div>
+            <div class="item"><span>Zonnepanelen</span><span>${data.solar} W</span></div>
+            <div class="item"><span>Batterij opwek</span><span>${data.invReturn} W</span></div>
+            <div class="item"><span>Echte verbruik</span><span>${data.realUsage} W</span></div>
+          </div>
+
+          <div class="panel">
+            <div class="title">Laders</div>
+            <div class="item"><span>Lader 1</span>${pill(data.lader1)}</div>
+            <div class="item"><span>Lader 2</span>${pill(data.lader2)}</div>
+            <div class="item"><span>Lader 3</span>${pill(data.lader3)}</div>
+            <div class="item"><span>Verbruik</span><span>${data.chargerUsage} W</span></div>
+          </div>
+
+          <div class="panel">
+            <div class="title">Laad-/ontlaadtijd</div>
+            <div class="item"><span>Laadtijd</span><span>${data.chargeTime || '-'}</span></div>
+            <div class="item"><span>Ontlaadtijd</span><span>${data.dischargeTime || '-'}</span></div>
+          </div>
+
+          <div class="panel">
+            <div class="title">Omvormers</div>
+            <div class="item"><span>Temperatuur</span><span>${data.invOneTemp}°C / ${data.invTwoTemp}°C</span></div>
+            <div class="item"><span>Koeling</span>${pill(data.invFan)}</div>
+          </div>
+
+          <div class="panel">
+            <div class="title">Status</div>
+            <div class="item"><span>Laad pauze</span><span>${data.pauseCharging ? 'Actief' : 'Uit'}</span></div>
+            <div class="item"><span>Fasebescherming</span><span>${data.faseProtect ? 'Actief' : 'Uit'}</span></div>
+            <div class="item"><span></span><span></span></div>
+          </div>
+        `;
+
+        document.getElementById("dashboard").innerHTML = html;
+      } catch (err) {
+        const offlineHtml = `
+          <div class="panel" style="background-color:#320000; border: 2px solid #f44336;">
+            <div class="title">❌ Geen verbinding met API</div>
+            <div class="item" style="justify-content:center; font-size: 1.2rem; color: #ff6666;">
+              Controleer of de server bereikbaar is
+            </div>
+          </div>
+        `;
+        document.getElementById("dashboard").innerHTML = offlineHtml;
+      }
+    }
+
+    updateDashboard();
+    setInterval(updateDashboard, 10000);
+  </script>
+</body>
+</html>

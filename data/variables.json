@@ -1,14 +1,16 @@
 {
-    "pauseCharging": false,
+    "pauseCharging": true,
     "charge_session": {
-        "chargeStart": 1035.027,
-        "chargeCalibrated": 1027.347,
-        "dischargeStart": 890.807
+        "chargeStart": 1054.139,
+        "chargeCalibrated": 1046.459,
+        "dischargeStart": 905.753
     },
-    "charger_pause_until": 1747815303,
-    "charger_pending_switch": false,
+    "charger_pause_until": 1748079563,
+    "charger_pending_switch": true,
     "charging_loss": {
-        "chargeStart": 1035.027,
-        "dischargeStart": 890.807
-    }
+        "chargeStart": 1054.139,
+        "dischargeStart": 905.753
+    },
+    "charger_loss_dynamic": 0.21790165018378793,
+    "battery_calibrated": true
 }

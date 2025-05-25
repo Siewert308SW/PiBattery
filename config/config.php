@@ -41,7 +41,7 @@
 // = Charger variables
 	$chargerWattsIdle       = 200;          					 // Standby Watts of all chargers when the batteries are full
 	$chargerPausePct        = 85;           					 // When battery has been charged 100% till what % has it to drop before charging is allowed again
-	$chargerLoss      		= 0.21493;       					 // Charging loss	
+	$chargerLoss      		= 0.21493;       					 // Charging loss, virtual variable - After three charge sessions it will be calculated dynamicly	
 	$chargerhyst            = 150;          					 // Only turn off chargers if import exceeds this many Watts (prevents flip-flopping)
 	$chargerPause           = 60;          					     // Delay in seconds before switching chargers (prevents flip-flops)
 
@@ -62,9 +62,9 @@
 
 // = Chargers
 	$chargers = [
-		'Lader1' => ['ip' => ''.$hwChargerOneIP.'', 'power' => 325, 'label' => 'one', 'master' => true],
-		'Lader2' => ['ip' => ''.$hwChargerTwoIP.'', 'power' => 650, 'label' => 'two', 'master' => false],
-		'Lader3' => ['ip' => ''.$hwChargerThreeIP.'', 'power' => 325, 'label' => 'three', 'master' => false],
+		'charger1' => ['ip' => ''.$hwChargerOneIP.'', 'power' => 325, 'label' => 'one', 'master' => true],
+		'charger2' => ['ip' => ''.$hwChargerTwoIP.'', 'power' => 650, 'label' => 'two', 'master' => false],
+		'charger3' => ['ip' => ''.$hwChargerThreeIP.'', 'power' => 325, 'label' => 'three', 'master' => false],
 	];
 
 // = Ecoflow Powerstream API variables

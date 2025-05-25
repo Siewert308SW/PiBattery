@@ -1,8 +1,26 @@
 [
     {
-        "charged": 1.541,
-        "discharged": 1.211,
-        "loss": 0.2141,
-        "timestamp": 1747749422
+        "charged": 8.034,
+        "discharged": 6.256,
+        "loss": 0.22131,
+        "timestamp": 1747910623
+    },
+    {
+        "charged": 4.743,
+        "discharged": 3.702,
+        "loss": 0.21948,
+        "timestamp": 1747991324
+    },
+    {
+        "charged": 1.742,
+        "discharged": 1.356,
+        "loss": 0.22158,
+        "timestamp": 1748016263
+    },
+    {
+        "charged": 4.593,
+        "discharged": 3.632,
+        "loss": 0.20923,
+        "timestamp": 1748079522
     }
 ]
