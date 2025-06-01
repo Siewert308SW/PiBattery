@@ -183,6 +183,20 @@ Hier stel je onder andere in:
 <img src="images/terminal.png" alt="Terminal output" width="35%"> <img src="images/terminal2.png" alt="Terminal output" width="35%">
 </p>   
 <p align="center"><small>Terminal output</small></p>
+
+---
+
+## Cronjob
+
+Voorbeeld van hoe mijn cronjob:
+
+```
+* * * * * sudo php /path2/pibattery.php > /dev/null
+* * * * * (sleep 15; sudo php /path2/pibattery.php) > /dev/null
+* * * * * (sleep 30; sudo php /path2/pibattery.php) > /dev/null
+* * * * * (sleep 45; sudo php /path2/pibattery.php) > /dev/null
+````
+
 ---
 
 ## Domoticz-integratie (optioneel)
