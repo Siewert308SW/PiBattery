@@ -188,7 +188,7 @@ Hier stel je onder andere in:
 
 ## Cronjob
 
-Voorbeeld van hoe mijn cronjob:
+Voorbeeld van mijn cronjob:
 
 ```
 * * * * * sudo php /path2/pibattery.php > /dev/null
