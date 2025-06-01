@@ -22,30 +22,23 @@
 	$zenitLong              = '91.7';       					 // Zenith longitude: the highest point of the sky as seen from the observer’s location
 	$timezone               = 'Europe/Amsterdam'; 				 // My php.ini doesn't apply the timezone, so it’s set manually here
 
-// = Script Run Intervals
-	$chargeTimer			= 120;								 // Cron timer
-	$baseloadTimer			= 20;								 // Cron timer
-	$domoticzTimer			= 30;								 // Cron timer
-	
 // = Battery variables
 	$batteryVolt            = 25.6;         					 // Battery Voltage
 	$batteryAh              = 300;          					 // Total Ah of all batteries
 	$batteryMinimum         = 10;           					 // Minimum percentage to keep in the battery, wintertime will be automaticly set to 25%
-
+	$keepBMSalive		    = 'yes';                             // Value 'yes' or 'no' if 'yes' After a long inactivity the battery will charge a bit to keep BMS awake
+	
 // = Inverter variables
 	$ecoflowMaxOutput       = 1150;         					 // Maximum output (Watts) the inverter is allowed to deliver
-	$ecoflowMinOutput       = 100;          					 // Minimum output (Watts); the inverter is allowed to deliver
-	$ecoflowOutputOffSet    = 1;           					     // Subtract this value (Watts) from the new baseload: this part is always imported from the grid to prevent injection
+	$ecoflowMinOutput       = 50;          					     // Minimum output (Watts); the inverter is allowed to deliver
+	$ecoflowOutputOffSet    = 5;           					     // Subtract this value (Watts) from the new baseload: this part is always imported from the grid to prevent injection
 	$ecoflowMaxInvTemp      = 65;           					 // Maximum internal temperature (°C); inverter stops feeding above this temperature
-
+	
 // = Charger variables
 	$chargerWattsIdle       = 200;          					 // Standby Watts of all chargers when the batteries are full
 	$chargerPausePct        = 85;           					 // When battery has been charged 100% till what % has it to drop before charging is allowed again
-	$chargerLoss      		= 0.22079;       					 // Charging loss, virtual variable - After three charge sessions it will be calculated dynamicly	
-	$charging_lossSessions  = 10;								 // How many charge session need for calculating dynamic charge_loss
 	$chargerhyst            = 150;          					 // Only turn off chargers if import exceeds this many Watts (prevents flip-flopping)
 	$chargerPause           = 60;          					     // Delay in seconds before toggling chargers (prevents flip-flops)
-	$chargerFastReact		= 'yes';							 // Value 'yes' or 'no' if 'yes' chargers will toggle faster when solar production is 50% of less
 	
 // = Phase protection
 	$faseProtection         = 'yes';        				     // Value 'yes' or 'no'
@@ -64,9 +57,9 @@
 
 // = Chargers
 	$chargers = [
-		'charger1' => ['ip' => ''.$hwChargerOneIP.'', 'power' => 325, 'label' => 'one', 'master' => true],
-		'charger2' => ['ip' => ''.$hwChargerTwoIP.'', 'power' => 650, 'label' => 'two', 'master' => false],
-		'charger3' => ['ip' => ''.$hwChargerThreeIP.'', 'power' => 325, 'label' => 'three', 'master' => false],
+		'charger1' => ['ip' => ''.$hwChargerOneIP.'', 'power' => 300, 'label' => 'one', 'master' => true],
+		'charger2' => ['ip' => ''.$hwChargerTwoIP.'', 'power' => 600, 'label' => 'two', 'master' => false],
+		'charger3' => ['ip' => ''.$hwChargerThreeIP.'', 'power' => 300, 'label' => 'three', 'master' => false],
 	];
 
 // = Ecoflow Powerstream API variables

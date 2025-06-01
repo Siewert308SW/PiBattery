@@ -15,38 +15,42 @@
 	date_default_timezone_set(''.$timezone.'');
 	
 // = Time/Date now
+	$currentTimestamp = time();
 	$currentTime = date('H:i');
 	$dateNow = date('Y-m-d H:i:s');
 	$dateTime = new DateTime(''.$dateNow.'', new DateTimeZone(''.$timezone.''));
 	$isWinter = ($dateTime->format('n') < 4 || $dateTime->format('n') > 9);
 	
 // = Check DST time
-	//$isDST = $dateTime->format("I");
-	//if ($isDST == '1'){
-	//$gmt = '1';
-	//} else {
-	//$gmt = '0';
-	//}
+	$isDST = $dateTime->format("I");
+	if ($isDST == '1'){
+	$gmt = '1';
+	} else {
+	$gmt = '0';
+	}
 
 // = Get Sunrise/Sunset
-	//$sunrise 				= (date_sunrise(time(),SUNFUNCS_RET_STRING,$latitude,$longitude,$zenitLat,$gmt));
-	//$sunset 				= (date_sunset(time(),SUNFUNCS_RET_STRING,$latitude,$longitude,$zenitLong,$gmt));
+	$sunrise 				= (date_sunrise(time(),SUNFUNCS_RET_STRING,$latitude,$longitude,$zenitLat,$gmt));
+	$sunset 				= (date_sunset(time(),SUNFUNCS_RET_STRING,$latitude,$longitude,$zenitLong,$gmt));
 
 // = Adjust Sunrise/Sunset with +/- 1 hour
-	//$sunriseTime 			= DateTime::createFromFormat('H:i', $sunrise);
-	//$sunsetTime 			= DateTime::createFromFormat('H:i', $sunset);
+	$sunriseTime 			= DateTime::createFromFormat('H:i', $sunrise);
+	$sunsetTime 			= DateTime::createFromFormat('H:i', $sunset);
 
-	//$sunriseTime->modify('+1 hour');
-	//$sunsetTime->modify('-1 hour');
+	$sunriseTime->modify('+1 hour');
+	$sunsetTime->modify('-1 hour');
 
-	//$sunriseAdjusted 		= $sunriseTime->format('H:i');
-	//$sunsetAdjusted 		= $sunsetTime->format('H:i');
+	$sunriseAdjusted 		= $sunriseTime->format('H:i');
+	$sunsetAdjusted 		= $sunsetTime->format('H:i');
 
-	//$isDaytime 				= ($currentTime >= $sunriseAdjusted && $currentTime <= $sunsetAdjusted);
+	$isDaytime 				= ($currentTime >= $sunriseAdjusted && $currentTime <= $sunsetAdjusted);
 
 // = Huidige variables ophalen
 	$varsFile               = $piBatteryPath . 'data/variables.json';
 	$vars                   = file_exists($varsFile) ? json_decode(file_get_contents($varsFile), true) : [];
+
+	$varsTimerFile          = $piBatteryPath . 'data/timeStamp.json';
+	$varsTimer              = file_exists($varsTimerFile ) ? json_decode(file_get_contents($varsTimerFile ), true) : [];
 	
 // = HomeWizard GET Variables
 	$hwP1Usage              = getHwData($hwP1IP);
@@ -78,8 +82,7 @@
 	$pv1TwoInputVolt 		= ($invTwo['data']['20_1.pv1InputVolt']) / 10;
 	$pv2TwoInputVolt 		= ($invTwo['data']['20_1.pv2InputVolt']) / 10;
 	$pvAvTwoInputVoltage    = round(($pv1TwoInputVolt + $pv2TwoInputVolt) / 2, 2);
-
-	$pvAvInputVoltage       = round(($pvAvOneInputVoltage), 2);
+	$pvAvInputVoltage       = round(($pvAvOneInputVoltage + $pvAvTwoInputVoltage) / 2, 2);
 
 // = Get Inverter Temperature
 	$invOneTemp             = ($invOne['data']['20_1.llcTemp']) / 10;
@@ -104,6 +107,17 @@
 	$currentOneBaseload	    = ($invOne['data']['20_1.permanentWatts']) / 10;
 	$currentTwoBaseload	    = ($invTwo['data']['20_1.permanentWatts']) / 10;
 	$currentBaseload	    = ($currentOneBaseload + $currentTwoBaseload);
+	$oldBaseload 			= $vars['oldBaseload'] ?? 0;
+	
+// = Various
+	$batteryMinimum 		= $isWinter ? 25 : $batteryMinimum;
+	$chargerLoss 			= round($vars['charger_loss_dynamic'] ?? 0.20905, 5);	
+	$pauseCharging 			= $vars['pauseCharging'] ?? false;
+	$solarHighestProd	    = $vars['solarHighestProd'] ?? -1000;
+	$chargeLossCalculation 	= $vars['charge_loss_calculation'] ?? false;
+	$totalSuccesUpdates 	= $vars['totalSuccesUpdates'] ?? 0;
+	$totalFailedUpdates 	= $vars['totalFailedUpdates'] ?? 0;
+	$bmsProtect 			= $vars['keepBMSalive'] ?? false;
 	
 // = Get/Set Battery Charge/Discharge/SOC values
 	$batteryCapacitykWh     = ($batteryVolt * $batteryAh / 1000);
@@ -121,13 +135,6 @@
 	$brutoDischarged 		= round(($dischargeEnd - $dischargeStart), 3);
 	$batteryAvailable	    = round((($batteryCapacitykWh) - ($brutoDischarged - ($brutoCharged  * (1 - $chargerLoss)))), 2);
 	$batteryPct 			= round(($batteryAvailable / $batteryCapacitykWh) * 100, 2);
-
-	$chargerLoss 			= round($vars['charger_loss_dynamic'] ?? $chargerLoss, 5);	
-	$pauseCharging 			= $vars['pauseCharging'] ?? false;
-	$solarHighestProd	    = $vars['solarHighestProd'] ?? -1000;
-	
-// = Various
-	$batteryMinimum = $isWinter ? 25 : $batteryMinimum;
 	
 // = Get status for all chargers
 	foreach ($chargers as $name => &$data) {

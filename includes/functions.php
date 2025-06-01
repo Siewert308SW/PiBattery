@@ -437,21 +437,13 @@
 	$currentTimestamp = time();
 
 	if ($pauseUntil >= $currentTimestamp) {
-		if ($chargerFastReact === 'yes' && $hwSolarReturn > ($solarHighestProd / 2)) {
-			if ($debugLang == 'NL') {
-				debugMsg("Pauze actief, maar genegeerd vanwege override");
-			} else {
-				debugMsg("Pause active, but overridden due to override");
-			}
-
+		if ($debugLang == 'NL'){
+		debugMsg("Pauze actief tot " . date("H:i:s", $pauseUntil) . ", geen actie");
 		} else {
-			if ($debugLang == 'NL') {
-				debugMsg("Pauze actief tot " . date("H:i:s", $pauseUntil) . ", geen actie");
-			} else {
-				debugMsg("Pause active till " . date("H:i:s", $pauseUntil) . ", no action required");
-			}
-			return;
+		debugMsg("Pause active till " . date("H:i:s", $pauseUntil) . ", no action required");	
 		}
+
+		return;
 	}
 
 	if ($pendingSwitch) {

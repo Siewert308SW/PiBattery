@@ -6,61 +6,93 @@
 // **************************************************************//
 //																 //
 
+// = -------------------------------------------------
+// = Function writeJson
+// = -------------------------------------------------
+	function writeJson(string $filename, array $data): void {
+		$fp = @fopen($filename, 'c+');
+		if (!$fp) return;
+
+		if (flock($fp, LOCK_EX)) {
+			ftruncate($fp, 0);
+			rewind($fp);
+			fwrite($fp, json_encode($data, JSON_PRETTY_PRINT));
+			fflush($fp);
+			flock($fp, LOCK_UN);
+		}
+		fclose($fp);
+	}
+
+// = -------------------------------------------------
 // = Variables
+// = -------------------------------------------------
+	
+// = Time & File Variables
 	$timeStamp 				= time();
 	$piBatteryPath 			= __DIR__ . '/';
-	$timeStampFile 			= $piBatteryPath . 'data/timeStamp.json';
+	$varsTimerFile 			= $piBatteryPath . 'data/timeStamp.json';
+	$bootStrapFile			= $piBatteryPath . 'bootstrap/bootstrap.php';
 	
 	$scriptTimer 			= [];
-	$scriptTimer 			= file_exists($timeStampFile) ? json_decode(file_get_contents($timeStampFile), true) : [];
+	$scriptTimer 			= file_exists($varsTimerFile) ? json_decode(file_get_contents($varsTimerFile), true) : [];
+
 	$runCharger 			= false;
 	$runBaseload 			= false;
 	$runDomoticz 			= false;
 	
-	require $piBatteryPath . 'bootstrap/bootstrap.php';
-
 // = Determine is script called by terminal
 	$isCliInteractive 		= function_exists('posix_isatty') && posix_isatty(STDOUT);
 	$isManualRun 			= php_sapi_name() === 'cli' && $isCliInteractive;
 	$isCronRun 				= php_sapi_name() === 'cli' && !$isCliInteractive;
-	
-// = Determine if Charger script may execute
-	if (!isset($scriptTimer['lastChargerRun']) || ($timeStamp - $scriptTimer['lastChargerRun']) >= $chargeTimer) {
-		$runCharger = true;
-		$scriptTimer['lastChargerRun'] = $timeStamp;
 
-		if ($runCharger && $hwInvReturn == 0) {
-			writeJsonLocked($timeStampFile, $scriptTimer);
-			require_once $piBatteryPath . 'scripts/charge.php';
-		}
-	
+// = -------------------------------------------------
+// = Determine if script may be executed
+// = -------------------------------------------------
+
+// = Determine if Charger script may execute
+	if (!isset($scriptTimer['lastChargerRun']) || ($timeStamp - $scriptTimer['lastChargerRun']) >= 60) {
+		$runCharger = true;
 	}
 
 // = Determine if Baseload script may be executed	
-	if (!isset($scriptTimer['lastBaseloadRun']) || ($timeStamp - $scriptTimer['lastBaseloadRun']) >= $baseloadTimer) {
+	if (!isset($scriptTimer['lastBaseloadRun']) || ($timeStamp - $scriptTimer['lastBaseloadRun']) >= 15) {
 		$runBaseload = true;
-		$scriptTimer['lastBaseloadRun'] = $timeStamp;
-		
-		if ($runBaseload) {
-			writeJsonLocked($timeStampFile, $scriptTimer);
-			require_once $piBatteryPath . 'scripts/baseload.php';
-		}
 	}
 
 // = Determine if Domoticz script may be executed	
-	if (!isset($scriptTimer['lastDomoticzRun']) || ($timeStamp - $scriptTimer['lastDomoticzRun']) >= $domoticzTimer) {
+	if (!isset($scriptTimer['lastDomoticzRun']) || ($timeStamp - $scriptTimer['lastDomoticzRun']) >= 30) {
 		$runDomoticz = true;
-		$scriptTimer['lastDomoticzRun'] = $timeStamp;
-		
-		if ($runDomoticz) {
-			sleep(1);
-			writeJsonLocked($timeStampFile, $scriptTimer);
-			require_once $piBatteryPath . 'scripts/domoticz.php';
-		}
 	}
 	
-// = Include Debug Output	
-	if ($debug == 'yes' && $isManualRun){	
+	require_once $bootStrapFile;
+	
+// = Charger script may execute
+	if ($runCharger == true && $hwInvReturn == 0) {
+		$scriptTimer['lastChargerRun'] = $timeStamp;
+		writeJson($varsTimerFile, $scriptTimer);
+		require_once $piBatteryPath . 'scripts/charge.php';
+	}
+
+// = Baseload script may be executed	
+	if ($runBaseload == true || $isManualRun) {
+		$scriptTimer['lastBaseloadRun'] = $timeStamp;
+		writeJson($varsTimerFile, $scriptTimer);
+		sleep(1);
+		require_once $piBatteryPath . 'scripts/baseload.php';
+	}
+
+// = Domoticz script may be executed	
+	if ($runDomoticz == true) {
+		$scriptTimer['lastDomoticzRun'] = $timeStamp;
+		writeJson($varsTimerFile, $scriptTimer);
+		sleep(2);
+		require_once $piBatteryPath . 'scripts/domoticz.php';
+	}
+	
+// = -------------------------------------------------
+// = Debug Output
+// = -------------------------------------------------	
+	if ($debug == 'yes' && $isManualRun){
 		echo ' '.PHP_EOL;
 		echo '  ---------------------------------------------------'.PHP_EOL;
 	    echo '  --                   PiBattery                   --'.PHP_EOL;
@@ -79,7 +111,6 @@
 		echo '  ---------------------------------------------------'.PHP_EOL;
 		echo '  --                     The End                   --'.PHP_EOL;
 		echo '  ---------------------------------------------------'.PHP_EOL;
-		echo ' '.PHP_EOL;
-			
+		echo ' '.PHP_EOL;	
 	}
 ?>
