@@ -6,7 +6,7 @@
 // **************************************************************//
 //                                                               //
 if ($debugLang == 'NL'){
-		
+	
 // === Print Charger Status	
 	echo ' -/- Laders                          -\-'.PHP_EOL;
 	printRow('Lader 1', $hwChargerOneStatus);
@@ -37,10 +37,10 @@ if ($debugLang == 'NL'){
 	printRow('Batterij SOC', $batteryPct, '%');
 	printRow('Laad verlies (gemiddeld)',  round($chargerLoss * 100, 3), '%');
 	if ($hwChargerUsage > 100 && $batteryPct < 100) {
-		printRow('Geschatte oplaadtijd > 100%', $realChargeTime, 'u/m');
+		printRow('Geschatte oplaadtijd '.round($batteryPct,0).'% > 100%', $realChargeTime, 'u/m');
 	}
 	if ($hwInvReturn != 0 && $batteryPct > $batteryMinimum) {
-		printRow('Geschatte ontlaadtijd '.$batteryMinimum.'% > 100%', $realDischargeTime, 'u/m');
+		printRow('Geschatte ontlaadtijd '.$batteryMinimum.'% < '.round($batteryPct,0).'%', $realDischargeTime, 'u/m');
 	}
 	echo ' '.PHP_EOL;
 
@@ -61,31 +61,19 @@ if ($debugLang == 'NL'){
 	echo ' '.PHP_EOL;
 
 // === Print Baseload
-if ($runBaseload) {
 	echo ' -/- Baseload                        -\-'.PHP_EOL;
 	printRow('Huidige baseload', $currentBaseload, 'Watt');
 	printRow('Nieuwe baseload', ($newBaseload / 10), 'Watt');
 	printRow('Baseload update', ($updateNeeded ? 'true' : 'false'));
 	echo ' '.PHP_EOL;
-}	
+	
 // === Print Various
 	echo ' -/- Various                         -\-'.PHP_EOL;
+	printRow('BMS bescherming', ($bmsProtect ? 'Bijladen' : 'Niet actief'));	
 	printRow('L'.$fase.' bescherming', ($faseProtect ? 'Actief' : 'Niet actief'));
 	printRow('Laad pauze '.$chargerPausePct.'% <-> 100%', ($pauseCharging ? 'Actief' : 'Niet actief'));
-	$varsPauseFile = $piBatteryPath . 'data/variables.json';
-	$varsPause = file_exists($varsPauseFile) ? json_decode(file_get_contents($varsPauseFile), true) : [];
-
-	$pauseUntil = $varsPause['charger_pause_until'] ?? 0;
-	$pendingSwitch = $varsPause['charger_pending_switch'] ?? false;
-	$currentTimestamp = time();
-
-	if ($pauseUntil >= $currentTimestamp) {
-		printRow('Lader schakel timeout', 'Actief', '');
-	} elseif ($pendingSwitch) {
-		printRow('Lader schakel timeout', 'Verlopen', '');
-	} else {
-		printRow('Lader schakel timeout', 'Niet actief', '');
-	}	
+	printRow('Geslaagde Baseload updates', $totalSuccesUpdates, '');
+	printRow('Mislukte Baseload updates', $totalFailedUpdates, '');
 	echo ' '.PHP_EOL;
 		
 // === Print additional debugMsg

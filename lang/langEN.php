@@ -22,6 +22,11 @@ if ($debugLang == 'EN'){
 		printRow('Eind Time', $invEndTime);
 	}
 	printRow('Schedule', ($schedule != 0 ? 'Actief' : 'Niet actief'));
+	if ($isWinter){
+	printRow('Winter program', 'Active', '');	
+	} else {
+	printRow('Summer program', 'Active', '');		
+	}
 	echo ' '.PHP_EOL;
 	
 // === Print Battery Status		
@@ -31,10 +36,10 @@ if ($debugLang == 'EN'){
 	printRow('Battery SOC', $batteryPct, '%');
 	printRow('Charge loss (average)',  round($chargerLoss * 100, 3), '%');
 	if ($hwChargerUsage > 100 && $batteryPct < 100) {
-		printRow('Estimated charge time >=100%', $realChargeTime, 'h/m');
+		printRow('Estimated charge time '.round($batteryPct,0).'% > 100%', $realChargeTime, 'u/m');
 	}
 	if ($hwInvReturn != 0 && $batteryPct > $batteryMinimum) {
-		printRow('Estimated discharge time <='.$batteryMinimum.'%', $realDischargeTime, 'h/m');
+		printRow('Estimated discharge time '.$batteryMinimum.'% < '.round($batteryPct,0).'%', $realDischargeTime, 'u/m');
 	}
 	echo ' '.PHP_EOL;
 
@@ -63,22 +68,11 @@ if ($debugLang == 'EN'){
 	
 // === Print Various
 	echo ' -/- Various                         -\-'.PHP_EOL;
-	printRow('L'.$fase.' protection', ($faseProtect ? 'Active' : 'Not active'));
-	printRow('Charge pause '.$chargerPausePct.'% > 100%', ($pauseCharging ? 'Active' : 'Not active'));
-	$varsPauseFile = $piBatteryPath . 'data/variables.json';
-	$varsPause = file_exists($varsPauseFile) ? json_decode(file_get_contents($varsPauseFile), true) : [];
-
-	$pauseUntil = $varsPause['charger_pause_until'] ?? 0;
-	$pendingSwitch = $varsPause['charger_pending_switch'] ?? false;
-	$currentTimestamp = time();
-
-	if ($pauseUntil >= $currentTimestamp) {
-		printRow('Charger toggle timeout', 'Active', '');
-	} elseif ($pendingSwitch) {
-		printRow('Lader toggle timeout', 'Expired', '');
-	} else {
-		printRow('Lader toggle timeout', 'Not active', '');
-	}	
+	printRow('BMS protection', ($bmsProtect ? 'Bijladen' : 'Niet actief'));	
+	printRow('L'.$fase.' protection', ($faseProtect ? 'Actief' : 'Niet actief'));
+	printRow('Charge pause '.$chargerPausePct.'% <-> 100%', ($pauseCharging ? 'Actief' : 'Niet actief'));
+	printRow('Total suceeded Baseload updates', $totalSuccesUpdates, '');
+	printRow('Total failed Baseload updates', $totalFailedUpdates, '');
 	echo ' '.PHP_EOL;
 		
 // === Print additional debugMsg
