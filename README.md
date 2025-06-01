@@ -192,9 +192,9 @@ Voorbeeld van mijn cronjob:
 
 ```
 * * * * * sudo php /path2/pibattery.php > /dev/null
-* * * * * (sleep 15; sudo php /path2/pibattery.php) > /dev/null
-* * * * * (sleep 30; sudo php /path2/pibattery.php) > /dev/null
-* * * * * (sleep 45; sudo php /path2/pibattery.php) > /dev/null
+* * * * * (sleep 15; sudo php /path2/pibattery/pibattery.php) > /dev/null
+* * * * * (sleep 30; sudo php /path2/pibattery/pibattery.php) > /dev/null
+* * * * * (sleep 45; sudo php /path2/pibattery/pibattery.php) > /dev/null
 ````
 
 ---
