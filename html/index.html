@@ -29,15 +29,15 @@
   .grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 12px;
+    gap: 10px;
     max-width: 100%;
   }
 
   .panel {
     background: #1e1e1e;
-    border-radius: 16px;
+    border-radius: 14px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-    padding: 14px;
+    padding: 12px;
     display: flex;
     flex-direction: column;
   }
@@ -53,7 +53,7 @@
     display: flex;
     justify-content: space-between;
     padding: 4px 0;
-    font-size: 1.05rem;
+    font-size: 1.00rem;
   }
 
   .status-pill {
@@ -132,8 +132,9 @@
 
           <div class="panel">
             <div class="title">Status</div>
-            <div class="item"><span>Laad pauze</span><span>${data.pauseCharging ? 'Actief' : 'Uit'}</span></div>
-            <div class="item"><span>Fasebescherming</span><span>${data.faseProtect ? 'Actief' : 'Uit'}</span></div>
+            <div class="item"><span>Laad pauze</span><span>${data.pauseCharging ? 'Actief' : 'Niet actief'}</span></div>
+            <div class="item"><span>Fasebescherming</span><span>${data.faseProtect ? 'Actief' : 'Niet actief'}</span></div>
+			<div class="item"><span>BMS bescherming</span><span>${data.bmsProtection ? 'Bijladen' : 'Niet actief'}</span></div>
             <div class="item"><span></span><span></span></div>
           </div>
         `;
