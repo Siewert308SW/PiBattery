@@ -6,20 +6,20 @@
 // **************************************************************//
 //                                                               //
 
-// = Get Ecoflow status
-	$ecoflow = new EcoFlowAPI(''.$ecoflowAccessKey.'', ''.$ecoflowSecretKey.'');
-	$invOne = $ecoflow->getDevice($ecoflowOneSerialNumber);
-	$invTwo = $ecoflow->getDevice($ecoflowTwoSerialNumber);
+// = Get Ecoflow data
+	$ecoflow 				= new EcoFlowAPI(''.$ecoflowAccessKey.'', ''.$ecoflowSecretKey.'');
+	$invOne 				= $ecoflow->getDevice($ecoflowOneSerialNumber);
+	$invTwo 				= $ecoflow->getDevice($ecoflowTwoSerialNumber);
 	
 // = php.ini
 	date_default_timezone_set(''.$timezone.'');
 	
 // = Time/Date now
-	$currentTimestamp = time();
-	$currentTime = date('H:i');
-	$dateNow = date('Y-m-d H:i:s');
-	$dateTime = new DateTime(''.$dateNow.'', new DateTimeZone(''.$timezone.''));
-	$isWinter = ($dateTime->format('n') < 4 || $dateTime->format('n') > 9);
+	$currentTimestamp 		= time();
+	$currentTime 			= date('H:i');
+	$dateNow 				= date('Y-m-d H:i:s');
+	$dateTime 				= new DateTime(''.$dateNow.'', new DateTimeZone(''.$timezone.''));
+	$isWinter 				= ($dateTime->format('n') < 4 || $dateTime->format('n') > 9);
 	
 // = Check DST time
 	$isDST = $dateTime->format("I");
@@ -49,9 +49,38 @@
 	$varsFile               = $piBatteryPath . 'data/variables.json';
 	$vars                   = file_exists($varsFile) ? json_decode(file_get_contents($varsFile), true) : [];
 
+	$varsTestFile           = $piBatteryPath . 'data/variablesTest.json';
+	$varsTest               = file_exists($varsTestFile) ? json_decode(file_get_contents($varsTestFile), true) : [];
+	
 	$varsTimerFile          = $piBatteryPath . 'data/timeStamp.json';
 	$varsTimer              = file_exists($varsTimerFile ) ? json_decode(file_get_contents($varsTimerFile ), true) : [];
-	
+
+// = Get Ecoflow status
+    $pv1acOffFlag 			= ($invOne['data']['20_1.acOffFlag']);
+    $pv2acOffFlag 			= ($invTwo['data']['20_1.acOffFlag']);
+
+	if ($runCharger){
+		if (!isset($pv1acOffFlag) || !isset($pv2acOffFlag)) {
+			if (!isset($vars['apiOnline']) || $vars['apiOnline'] === true) {
+			$vars['apiOnline'] = false;
+			switchHwSocket('two','Off'); sleep(1);
+			switchHwSocket('three','Off'); sleep(1);
+			switchHwSocket('one','Off');
+			switchHwSocket('invOne','Off');
+			switchHwSocket('invTwo','Off');
+			switchHwSocket('fan','Off');
+			writeJsonLocked($varsFile, $vars);
+			}
+		} elseif (isset($pv1acOffFlag) && isset($pv2acOffFlag) && $vars['apiOnline'] === false) {
+			if (!isset($vars['apiOnline']) || $vars['apiOnline'] === false) {
+			$vars['apiOnline'] = true;
+			switchHwSocket('invOne','On');
+			switchHwSocket('invTwo','On');
+			writeJsonLocked($varsFile, $vars);
+			}
+		}
+	}
+
 // = HomeWizard GET Variables
 	$hwP1Usage              = getHwData($hwP1IP);
 	$hwP1Fase               = getHwP1FaseData($hwP1IP, $fase);
@@ -75,6 +104,7 @@
 	$hwInvFanStatus         = getHwStatus($hwEcoFlowFanIP);
 	
 // = Get battery Voltage via inverter
+if ($vars['apiOnline'] === true) {
 	$pv1OneInputVolt 		= ($invOne['data']['20_1.pv1InputVolt']) / 10;
 	$pv2OneInputVolt 		= ($invOne['data']['20_1.pv2InputVolt']) / 10;
 	$pvAvOneInputVoltage    = round(($pv1OneInputVolt + $pv2OneInputVolt) / 2, 2);
@@ -88,6 +118,7 @@
 	$invOneTemp             = ($invOne['data']['20_1.llcTemp']) / 10;
 	$invTwoTemp             = ($invTwo['data']['20_1.llcTemp']) / 10;
 	$invTemp                = ($invOneTemp + $invTwoTemp) / 2;
+}
 	
 // = Get P1 / Solar and real power usage
 	$productionTotal        = ($hwSolarReturn + $hwInvReturn);	
@@ -104,19 +135,19 @@
 	$hwChargersTotalInput   = ($hwChargerOneTotal + $hwChargerTwoTotal + $hwChargerThreeTotal);
 
 // = Get Current Baseload
+if ($vars['apiOnline'] === true) {	
 	$currentOneBaseload	    = ($invOne['data']['20_1.permanentWatts']) / 10;
 	$currentTwoBaseload	    = ($invTwo['data']['20_1.permanentWatts']) / 10;
 	$currentBaseload	    = ($currentOneBaseload + $currentTwoBaseload);
 	$oldBaseload 			= $vars['oldBaseload'] ?? 0;
+}
 	
 // = Various
 	$batteryMinimum 		= $isWinter ? 25 : $batteryMinimum;
-	$chargerLoss 			= round($vars['charger_loss_dynamic'] ?? 0.20905, 5);	
+	$chargerLoss 			= round($vars['charger_loss_dynamic'] ?? 0.2248651485295945, 5);	
 	$pauseCharging 			= $vars['pauseCharging'] ?? false;
 	$solarHighestProd	    = $vars['solarHighestProd'] ?? -1000;
 	$chargeLossCalculation 	= $vars['charge_loss_calculation'] ?? false;
-	$totalSuccesUpdates 	= $vars['totalSuccesUpdates'] ?? 0;
-	$totalFailedUpdates 	= $vars['totalFailedUpdates'] ?? 0;
 	$bmsProtect 			= $vars['keepBMSalive'] ?? false;
 	
 // = Get/Set Battery Charge/Discharge/SOC values
@@ -135,7 +166,7 @@
 	$brutoDischarged 		= round(($dischargeEnd - $dischargeStart), 3);
 	$batteryAvailable	    = round((($batteryCapacitykWh) - ($brutoDischarged - ($brutoCharged  * (1 - $chargerLoss)))), 2);
 	$batteryPct 			= round(($batteryAvailable / $batteryCapacitykWh) * 100, 2);
-	
+
 // = Get status for all chargers
 	foreach ($chargers as $name => &$data) {
 		$data['status'] = getHwStatus($data['ip']);

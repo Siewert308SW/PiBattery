@@ -1,5 +1,6 @@
 {
-    "lastChargerRun": 1748080121,
-    "lastBaseloadRun": 1748080161,
-    "lastDomoticzRun": 1748080161
+    "manualRun": true,
+    "lastChargerRun": 1750445627,
+    "lastBaseloadRun": 1750445627,
+    "lastDomoticzRun": 1750445628
 }

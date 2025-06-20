@@ -48,6 +48,7 @@ if ($debugLang == 'EN'){
 	printRow('Inverter 1 Temperature', $invOneTemp, '°C');
 	printRow('Inverter 2 Temperature', $invTwoTemp, '°C');
 	printRow('Inverter cooling fans', $hwInvFanStatus);
+	printRow('Inverter API status', ($vars['apiOnline'] ? 'online' : 'offline'));
 	echo ' '.PHP_EOL;
 
 // === Print Energy Status		
@@ -63,6 +64,7 @@ if ($debugLang == 'EN'){
 	echo ' -/- Baseload                        -\-'.PHP_EOL;
 	printRow('Current baseload', $currentBaseload, 'Watt');
 	printRow('New baseload', ($newBaseload / 10), 'Watt');
+	printRow('Delta', $delta, 'Watt');
 	printRow('Baseload update', ($updateNeeded ? 'true' : 'false'));
 	echo ' '.PHP_EOL;
 	
@@ -71,8 +73,6 @@ if ($debugLang == 'EN'){
 	printRow('BMS protection', ($bmsProtect ? 'Bijladen' : 'Niet actief'));	
 	printRow('L'.$fase.' protection', ($faseProtect ? 'Actief' : 'Niet actief'));
 	printRow('Charge pause '.$chargerPausePct.'% <-> 100%', ($pauseCharging ? 'Actief' : 'Niet actief'));
-	printRow('Total suceeded Baseload updates', $totalSuccesUpdates, '');
-	printRow('Total failed Baseload updates', $totalFailedUpdates, '');
 	echo ' '.PHP_EOL;
 		
 // === Print additional debugMsg

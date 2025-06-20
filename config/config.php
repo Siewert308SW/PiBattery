@@ -31,13 +31,13 @@
 // = Inverter variables
 	$ecoflowMaxOutput       = 1150;         					 // Maximum output (Watts) the inverter is allowed to deliver
 	$ecoflowMinOutput       = 50;          					     // Minimum output (Watts); the inverter is allowed to deliver
-	$ecoflowOutputOffSet    = 5;           					     // Subtract this value (Watts) from the new baseload: this part is always imported from the grid to prevent injection
+	$ecoflowOutputOffSet    = 1;           					     // Subtract this value (Watts) from the new baseload: this part is always imported from the grid to prevent injection
 	$ecoflowMaxInvTemp      = 65;           					 // Maximum internal temperature (°C); inverter stops feeding above this temperature
 	
 // = Charger variables
 	$chargerWattsIdle       = 200;          					 // Standby Watts of all chargers when the batteries are full
-	$chargerPausePct        = 85;           					 // When battery has been charged 100% till what % has it to drop before charging is allowed again
-	$chargerhyst            = 150;          					 // Only turn off chargers if import exceeds this many Watts (prevents flip-flopping)
+	$chargerPausePct        = 75;           					 // When battery has been charged 100% till what % has it to drop before charging is allowed again
+	$chargerhyst            = 100;          					 // Only turn off chargers if import exceeds this many Watts (prevents flip-flopping)
 	$chargerPause           = 60;          					     // Delay in seconds before toggling chargers (prevents flip-flops)
 	
 // = Phase protection
@@ -57,9 +57,9 @@
 
 // = Chargers
 	$chargers = [
-		'charger1' => ['ip' => ''.$hwChargerOneIP.'', 'power' => 300, 'label' => 'one', 'master' => true],
+		'charger1' => ['ip' => ''.$hwChargerOneIP.'', 'power' => 325, 'label' => 'one', 'master' => true],
 		'charger2' => ['ip' => ''.$hwChargerTwoIP.'', 'power' => 600, 'label' => 'two', 'master' => false],
-		'charger3' => ['ip' => ''.$hwChargerThreeIP.'', 'power' => 300, 'label' => 'three', 'master' => false],
+		'charger3' => ['ip' => ''.$hwChargerThreeIP.'', 'power' => 325, 'label' => 'three', 'master' => false],
 	];
 
 // = Ecoflow Powerstream API variables

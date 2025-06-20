@@ -49,6 +49,7 @@ if ($debugLang == 'NL'){
 	printRow('Omvormer 1 Temperatuur', $invOneTemp, '°C');
 	printRow('Omvormer 2 Temperatuur', $invTwoTemp, '°C');
 	printRow('Omvormer koeling', $hwInvFanStatus);
+	printRow('Omvormers API status', ($vars['apiOnline'] ? 'online' : 'offline'));
 	echo ' '.PHP_EOL;
 
 // === Print Energie Status		
@@ -64,6 +65,7 @@ if ($debugLang == 'NL'){
 	echo ' -/- Baseload                        -\-'.PHP_EOL;
 	printRow('Huidige baseload', $currentBaseload, 'Watt');
 	printRow('Nieuwe baseload', ($newBaseload / 10), 'Watt');
+	printRow('Delta', $delta, 'Watt');
 	printRow('Baseload update', ($updateNeeded ? 'true' : 'false'));
 	echo ' '.PHP_EOL;
 	
@@ -72,8 +74,6 @@ if ($debugLang == 'NL'){
 	printRow('BMS bescherming', ($bmsProtect ? 'Bijladen' : 'Niet actief'));	
 	printRow('L'.$fase.' bescherming', ($faseProtect ? 'Actief' : 'Niet actief'));
 	printRow('Laad pauze '.$chargerPausePct.'% <-> 100%', ($pauseCharging ? 'Actief' : 'Niet actief'));
-	printRow('Geslaagde Baseload updates', $totalSuccesUpdates, '');
-	printRow('Mislukte Baseload updates', $totalFailedUpdates, '');
 	echo ' '.PHP_EOL;
 		
 // === Print additional debugMsg
@@ -86,5 +86,6 @@ if ($debugLang == 'NL'){
 	} else {
 		echo '  ~~ Geen berichten'.PHP_EOL;	
 	}
+	
 }
 ?>

@@ -1,19 +1,19 @@
 {
     "pauseCharging": true,
     "charge_session": {
-        "chargeStart": 1105.988,
-        "chargeCalibrated": 1098.308,
-        "dischargeStart": 946.58
+        "chargeStart": 1202.522,
+        "chargeCalibrated": 1194.842,
+        "dischargeStart": 1021.876
     },
-    "charger_pause_until": 1748783303,
+    "charger_pause_until": 1750416707,
     "charger_pending_switch": true,
     "charging_loss": {
-        "chargeStart": 1105.988,
-        "dischargeStart": 946.58
+        "chargeStart": 1202.522,
+        "dischargeStart": 1021.876
     },
-    "charger_loss_dynamic": 0.21456505960682856,
-    "solarHighestProd": -5652,
-    "keepBMSalive": false,
-    "oldBaseload": 3500,
-    "totalSuccesUpdates": 8
+    "charger_loss_dynamic": 0.22375927766104628,
+    "oldBaseload": 0,
+    "apiOnline": true,
+    "battery_calibrated": true,
+    "totalAllowedUpdates": 71
 }

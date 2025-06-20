@@ -457,7 +457,12 @@
 		writeJsonLocked($varsFile, $vars);
 		
 	} elseif ($schakelingNodig) {
-		$newPauseUntil = time() + $chargerPause;
+		if ($hwChargerUsage == 0) {
+			$newPauseUntil = time() + 120;
+		} else {
+			$newPauseUntil = time() + $chargerPause;
+		}
+		
 		if (
 			($vars['charger_pause_until'] ?? 0) !== $newPauseUntil ||
 			($vars['charger_pending_switch'] ?? false) !== true

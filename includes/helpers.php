@@ -219,14 +219,15 @@
 // = -------------------------------------------------	
 // = Keep BMS Awake
 // = -------------------------------------------------
-	if ($runCharger){
-		if (($keepBMSalive == 'yes' && $pvAvInputVoltage <= ($batteryVolt - 3.6) && $hwChargerUsage == 0 && $hwInvReturn == 0) && (!isset($vars['keepBMSalive']) || $vars['keepBMSalive'] !== true)) {
-			$vars['keepBMSalive'] = true;
-			writeJsonLocked($varsFile, $vars);
-		} elseif (($keepBMSalive == 'yes' && $pvAvInputVoltage >= ($batteryVolt - 2.2)) && (!isset($vars['keepBMSalive']) || $vars['keepBMSalive'] == true)) {
-			$vars['keepBMSalive'] = false;
-			writeJsonLocked($varsFile, $vars);	
-		}
-	}
+	//if ($runCharger){
+	//	if (($keepBMSalive == 'yes' && $pvAvInputVoltage <= ($batteryVolt - 3.6) && $hwChargerUsage == 0 && $hwInvReturn == 0) && (!isset($vars['keepBMSalive']) || $vars['keepBMSalive'] !== true)) {
+	//		$vars['keepBMSalive'] = true;
+	//		writeJsonLocked($varsFile, $vars);
+			
+	//	} elseif (($keepBMSalive == 'yes' && $pvAvInputVoltage >= ($batteryVolt - 2.2)) && (!isset($vars['keepBMSalive']) || $vars['keepBMSalive'] == true)) {
+	//		$vars['keepBMSalive'] = false;
+	//		writeJsonLocked($varsFile, $vars);	
+	//	}
+	//}
 	
 ?>

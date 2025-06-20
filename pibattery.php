@@ -55,26 +55,26 @@
 	}
 
 // = Determine if Baseload script may be executed	
-	if (!isset($scriptTimer['lastBaseloadRun']) || ($timeStamp - $scriptTimer['lastBaseloadRun']) >= 15) {
+	if (!isset($scriptTimer['lastBaseloadRun']) || ($timeStamp - $scriptTimer['lastBaseloadRun']) >= 30) {
 		$runBaseload = true;
 	}
 
 // = Determine if Domoticz script may be executed	
-	if (!isset($scriptTimer['lastDomoticzRun']) || ($timeStamp - $scriptTimer['lastDomoticzRun']) >= 30) {
+	if (!isset($scriptTimer['lastDomoticzRun']) || ($timeStamp - $scriptTimer['lastDomoticzRun']) >= 15) {
 		$runDomoticz = true;
 	}
 	
 	require_once $bootStrapFile;
 	
 // = Charger script may execute
-	if ($runCharger == true && $hwInvReturn == 0) {
+	if ($runCharger == true && $hwInvReturn == 0 && $vars['apiOnline'] === true) {
 		$scriptTimer['lastChargerRun'] = $timeStamp;
 		writeJson($varsTimerFile, $scriptTimer);
 		require_once $piBatteryPath . 'scripts/charge.php';
 	}
 
 // = Baseload script may be executed	
-	if ($runBaseload == true || $isManualRun) {
+	if (($runBaseload == true || $isManualRun) && ($vars['apiOnline'] === true)) {
 		$scriptTimer['lastBaseloadRun'] = $timeStamp;
 		writeJson($varsTimerFile, $scriptTimer);
 		sleep(1);
@@ -82,7 +82,7 @@
 	}
 
 // = Domoticz script may be executed	
-	if ($runDomoticz == true) {
+	if ($runDomoticz == true && $vars['apiOnline'] === true) {
 		$scriptTimer['lastDomoticzRun'] = $timeStamp;
 		writeJson($varsTimerFile, $scriptTimer);
 		sleep(2);
@@ -99,12 +99,16 @@
 		echo '  --            '.$batteryCapacitykWh.' kWh Solar Storage             --'.PHP_EOL;
 		echo '  ---------------------------------------------------'.PHP_EOL;
 		echo ' '.PHP_EOL;
-	
-		$files = glob(__DIR__ . '/lang/*.php');
-		foreach ($files as $file) {
-			if ($file != __FILE__) {
-				require_once($file);
+
+		if ($vars['apiOnline'] === true) {	
+			$files = glob(__DIR__ . '/lang/*.php');
+			foreach ($files as $file) {
+				if ($file != __FILE__) {
+					require_once($file);
+				}
 			}
+		} else {
+			echo '  ERROR: Inverters or API are not online!'.PHP_EOL;	
 		}
 		
 		echo ' '.PHP_EOL;
