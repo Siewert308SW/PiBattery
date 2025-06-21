@@ -121,7 +121,7 @@
 					$sessions[] = $newSession;
 
 // === Remove oldest session				
-			if (count($sessions) > 10) {
+			if (count($sessions) > $chargeSessions) {
 			array_shift($sessions);
 			}	
 			writeJsonLocked($sessionFile, $sessions);
@@ -140,7 +140,7 @@
 				}
 			}
 
-			if (count($losses) >= 10) {
+			if (count($losses) >= $chargeSessions) {
 				$chargerLoss = array_sum($losses) / count($losses);
 				$vars['charger_loss_dynamic'] = $chargerLoss;
 				writeJsonLocked($varsFile, $vars);

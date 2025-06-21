@@ -39,7 +39,8 @@
 	$chargerPausePct        = 75;           					 // When battery has been charged 100% till what % has it to drop before charging is allowed again
 	$chargerhyst            = 100;          					 // Only turn off chargers if import exceeds this many Watts (prevents flip-flopping)
 	$chargerPause           = 60;          					     // Delay in seconds before toggling chargers (prevents flip-flops)
-	
+	$chargeSessions			= 15;                                // How many charge session to calculate charging loss 
+
 // = Phase protection
 	$faseProtection         = 'yes';        				     // Value 'yes' or 'no'
 	$maxFaseWatts           = 4500;         				     // If 'yes' whats the max Watts to guard, all chargers are turned off to prevent overloading
