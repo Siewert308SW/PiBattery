@@ -7,19 +7,37 @@
 //                                                               //
 
 // -------------------------------------------------
+// Determine winter/summertime schedule
+// -------------------------------------------------
+	$scheduleAllowed = false;
+	if ($winterPause == 'yes' && $isWinter && !$isDaytime) {
+	$scheduleAllowed = true;
+	
+	} elseif ($winterPause == 'yes' && !$isWinter) {
+	$scheduleAllowed = true;
+	
+	} elseif ($winterPause == 'no') {
+	$scheduleAllowed = true;
+	}
+
+// -------------------------------------------------
 // Schedule
 // -------------------------------------------------
 	if ($runBaseload || $isManualRun){
-		if ($runInfinity == 'yes') {
+		if ($runInfinity == 'yes' && $scheduleAllowed == true) {
 			$schedule = 1;
+			
 		} elseif ($runInfinity == 'no') {
+			
 			if ($invStartTime < $invEndTime) {
 				if ($currentTime >= $invStartTime && $currentTime <= $invEndTime) {
 					$schedule = 1;
 				} else {
 					$schedule = 0;
 				}
+				
 			} else {
+				
 				if ($currentTime >= $invStartTime || $currentTime <= $invEndTime) {
 					$schedule = 1;
 				} else {

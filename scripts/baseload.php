@@ -9,18 +9,16 @@
 // = -------------------------------------------------	
 // = Calculate new baseload
 // = -------------------------------------------------
-
-	$newBaseload = round(min($ecoflowMaxOutput, max(0, ($hwP1Usage + $currentBaseload - $ecoflowOutputOffSet))) * 10);	
+	if ($hwP1Usage < $ecoflowMaxOutput){
+		$newBaseload = round(min($ecoflowMaxOutput, max(0, ($hwP1Usage + $currentBaseload - $ecoflowOutputOffSet))) * 10);
+	} elseif ($hwP1Usage >= $ecoflowMaxOutput){
+		$newBaseload = ($ecoflowMaxOutput) * 10;
+	}
 	
 // = -------------------------------------------------	
 // = Check if baseload needs to be updated
 // = ------------------------------------------------- 
-
-	if ($hwChargerUsage == 0) {
-		$delta = abs($newBaseload - ($currentBaseload * 10));
-	} else {
-		$delta = 0;
-	}
+	$delta = abs($newBaseload - ($currentBaseload * 10));
 	
 	$updateNeeded = false;
 
@@ -82,29 +80,31 @@
 
 		}
 	}
+
 // = -------------------------------------------------	
 // = Baseload failsaves
 // = -------------------------------------------------
-		$forceBaseloadOff = false;
+	$forceBaseloadOff = false;
+	
 // Set baseload to null when charging
-	if (
-		$hwChargerOneStatus == 'On' || $hwChargerTwoStatus == 'On' || $hwChargerThreeStatus == 'On' ||
-		$schedule == 0 || $newBaseload <= $ecoflowMinOutput || $batteryPct <= $batteryMinimum || $pvAvInputVoltage <= ($batteryVolt - 3.6)
+	if ($hwChargerOneStatus == 'On' || $hwChargerTwoStatus == 'On' || $hwChargerThreeStatus == 'On' ||
+		$schedule == 0 || $newBaseload <= ($ecoflowMinOutput * 10) || $batteryPct <= $batteryMinimum || $pvAvInputVoltage <= ($batteryVolt - 3.6) || $invTemp >= $ecoflowMaxInvTemp
 		) {
-		$newBaseload = 0;
 		$forceBaseloadOff = true;
-	}
-
-// Limit baseload when inverter is getting to hot
-	if ($invTemp >= $ecoflowMaxInvTemp) {
-		$newBaseload = ($newBaseload) / 1.5;
+		debugMsg('Forced off');
 	}
 	
 // = -------------------------------------------------	
 // = Update baseload
 // = -------------------------------------------------
-	if (($forceBaseloadOff && $currentBaseload != 0) || ($updateNeeded && !$isManualRun && $updateAllowed)) {
-		$invBaseload = ($newBaseload / 2);
+	if ($updateNeeded && !$isManualRun && $updateAllowed) {
+		
+		if ($forceBaseloadOff == true && $baseload != 0) {
+			$invBaseload = 0;
+		} elseif ($forceBaseloadOff == false) {
+			$invBaseload = ($newBaseload / 2);	
+		}
+		
 		$ecoflow->setDeviceFunction($ecoflowOneSerialNumber, 'WN511_SET_PERMANENT_WATTS_PACK', ['permanent_watts' => $invBaseload]);
 		sleep(1);
 		$ecoflow->setDeviceFunction($ecoflowTwoSerialNumber, 'WN511_SET_PERMANENT_WATTS_PACK', ['permanent_watts' => $invBaseload]);

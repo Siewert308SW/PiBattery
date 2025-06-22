@@ -14,7 +14,8 @@
 	$invStartTime           = '00:00';      					 // Inverter start time (used when $runInfinity == 'no')
 	$invEndTime             = '13:00';      					 // Inverter end time (used when $runInfinity == 'no')
 	$runInfinity            = 'yes';        					 // Value 'yes' or 'no'. If 'yes', the inverter will continue to generate power if possible, depending on settings
-
+	$winterPause			= 'yes';							 // Value 'yes' or 'no' if 'yes' then inverter will only inject when after sunset, doesn't work when $runInfinity = 'no'
+	
 // = Location variables
 	$latitude               = '00.00000';   					 // Latitude
 	$longitude              = '-0.00000';   					 // Longitude
@@ -30,13 +31,13 @@
 	
 // = Inverter variables
 	$ecoflowMaxOutput       = 1150;         					 // Maximum output (Watts) the inverter is allowed to deliver
-	$ecoflowMinOutput       = 50;          					     // Minimum output (Watts); the inverter is allowed to deliver
-	$ecoflowOutputOffSet    = 1;           					     // Subtract this value (Watts) from the new baseload: this part is always imported from the grid to prevent injection
+	$ecoflowMinOutput       = 100;         					     // Minimum output (Watts); the inverter is allowed to deliver
+	$ecoflowOutputOffSet    = 2;           					     // Subtract this value (Watts) from the new baseload: this part is always imported from the grid to prevent injection
 	$ecoflowMaxInvTemp      = 65;           					 // Maximum internal temperature (°C); inverter stops feeding above this temperature
-	
+
 // = Charger variables
 	$chargerWattsIdle       = 200;          					 // Standby Watts of all chargers when the batteries are full
-	$chargerPausePct        = 75;           					 // When battery has been charged 100% till what % has it to drop before charging is allowed again
+	$chargerPausePct        = 85;           					 // When battery has been charged 100% till what % has it to drop before charging is allowed again
 	$chargerhyst            = 100;          					 // Only turn off chargers if import exceeds this many Watts (prevents flip-flopping)
 	$chargerPause           = 60;          					     // Delay in seconds before toggling chargers (prevents flip-flops)
 	$chargeSessions			= 15;                                // How many charge session to calculate charging loss 
