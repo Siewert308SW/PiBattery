@@ -29,6 +29,8 @@
 	
 // = Time & File Variables
 	$timeStamp 				= time();
+	$currentTime 			= date('H:i');
+	$dateNow 				= date('Y-m-d H:i:s');
 	$piBatteryPath 			= __DIR__ . '/';
 	$varsTimerFile 			= $piBatteryPath . 'data/timeStamp.json';
 	$bootStrapFile			= $piBatteryPath . 'bootstrap/bootstrap.php';
@@ -39,42 +41,48 @@
 	$runCharger 			= false;
 	$runBaseload 			= false;
 	$runDomoticz 			= false;
+	$varsChanged 			= false;
+	$varsSyncChanged 	    = false;
 	
 // = Determine is script called by terminal
 	$isCliInteractive 		= function_exists('posix_isatty') && posix_isatty(STDOUT);
 	$isManualRun 			= php_sapi_name() === 'cli' && $isCliInteractive;
 	$isCronRun 				= php_sapi_name() === 'cli' && !$isCliInteractive;
-
+	
 // = -------------------------------------------------
 // = Determine if script may be executed
 // = -------------------------------------------------
-
+	
 // = Determine if Charger script may execute
-	if (!isset($scriptTimer['lastChargerRun']) || ($timeStamp - $scriptTimer['lastChargerRun']) >= 60) {
+	if (!isset($scriptTimer['lastChargerRun']) || ($timeStamp - $scriptTimer['lastChargerRun']) >= 60 || $isManualRun) {
 		$runCharger = true;
 	}
 
-// = Determine if Baseload script may be executed	
-	if (!isset($scriptTimer['lastBaseloadRun']) || ($timeStamp - $scriptTimer['lastBaseloadRun']) >= 30) {
+// = Determine if Baseload script may be executed
+	if (!isset($scriptTimer['lastBaseloadRun']) || ($timeStamp - $scriptTimer['lastBaseloadRun']) >= 30 || $isManualRun) {
 		$runBaseload = true;
-	}
-
+	}	
+	
 // = Determine if Domoticz script may be executed	
-	if (!isset($scriptTimer['lastDomoticzRun']) || ($timeStamp - $scriptTimer['lastDomoticzRun']) >= 15) {
+	if (!isset($scriptTimer['lastDomoticzRun']) || ($timeStamp - $scriptTimer['lastDomoticzRun']) >= 15 && !$isManualRun) {
 		$runDomoticz = true;
 	}
-	
+
+// = -------------------------------------------------
+// = Script may be executed
+// = -------------------------------------------------
+
 	require_once $bootStrapFile;
 	
 // = Charger script may execute
-	if ($runCharger == true && $hwInvReturn == 0 && $vars['apiOnline'] === true) {
+	if ($runCharger == true) {
 		$scriptTimer['lastChargerRun'] = $timeStamp;
 		writeJson($varsTimerFile, $scriptTimer);
 		require_once $piBatteryPath . 'scripts/charge.php';
 	}
 
 // = Baseload script may be executed	
-	if (($runBaseload == true || $isManualRun) && ($vars['apiOnline'] === true)) {
+	if ($runBaseload == true) {
 		$scriptTimer['lastBaseloadRun'] = $timeStamp;
 		writeJson($varsTimerFile, $scriptTimer);
 		sleep(1);
@@ -82,11 +90,16 @@
 	}
 
 // = Domoticz script may be executed	
-	if ($runDomoticz == true && $vars['apiOnline'] === true) {
+	if ($runDomoticz == true) {
 		$scriptTimer['lastDomoticzRun'] = $timeStamp;
 		writeJson($varsTimerFile, $scriptTimer);
 		sleep(2);
 		require_once $piBatteryPath . 'scripts/domoticz.php';
+	}
+
+// = Global writeJson
+	if ($varsChanged && !$isManualRun) {
+		writeJsonLocked($varsFile, $vars);
 	}
 	
 // = -------------------------------------------------
@@ -100,15 +113,11 @@
 		echo '  ---------------------------------------------------'.PHP_EOL;
 		echo ' '.PHP_EOL;
 
-		if ($vars['apiOnline'] === true) {	
-			$files = glob(__DIR__ . '/lang/*.php');
-			foreach ($files as $file) {
-				if ($file != __FILE__) {
-					require_once($file);
-				}
+		$files = glob(__DIR__ . '/lang/*.php');
+		foreach ($files as $file) {
+			if ($file != __FILE__) {
+				require_once($file);
 			}
-		} else {
-			echo '  ERROR: Inverters or API are not online!'.PHP_EOL;	
 		}
 		
 		echo ' '.PHP_EOL;

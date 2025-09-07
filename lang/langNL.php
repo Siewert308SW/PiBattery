@@ -12,6 +12,7 @@ if ($debugLang == 'NL'){
 	printRow('Lader 1', $hwChargerOneStatus);
 	printRow('Lader 2', $hwChargerTwoStatus);
 	printRow('Lader 3', $hwChargerThreeStatus);
+	printRow('Lader 4', $hwChargerFourStatus);
 	printRow('Laders verbruik', $hwChargerUsage, 'Watt');
 	echo ' '.PHP_EOL;
 
@@ -27,7 +28,7 @@ if ($debugLang == 'NL'){
 	} else {
 	printRow('Zomertijd programma', 'Actief', '');		
 	}	
-
+	printRow('Dag programma', ($isDaytime ? 'Actief' : 'Niet actief'));	
 	echo ' '.PHP_EOL;
 	
 // === Print Battery Status		
@@ -46,10 +47,13 @@ if ($debugLang == 'NL'){
 
 // === Print Inverter Status 
 	echo ' -/- EcoFlow Omvormers               -\-'.PHP_EOL;
+	//printRow('Omvormer 1 Baseload', $currentOneBaseload, 'Watt');
+	printRow('Omvormer 1 Output', $hwInvOneReturn, 'Watt');
+	//printRow('Omvormer 2 Baseload', $currentTwoBaseload, 'Watt');
+	printRow('Omvormer 2 Output', $hwInvTwoReturn, 'Watt');
 	printRow('Omvormer 1 Temperatuur', $invOneTemp, '°C');
 	printRow('Omvormer 2 Temperatuur', $invTwoTemp, '°C');
 	printRow('Omvormer koeling', $hwInvFanStatus);
-	printRow('Omvormers API status', ($vars['apiOnline'] ? 'online' : 'offline'));
 	echo ' '.PHP_EOL;
 
 // === Print Energie Status		

@@ -1,20 +1,19 @@
 {
+    "invInjection": false,
     "pauseCharging": true,
-    "charge_session": {
-        "chargeStart": 1209.369,
-        "chargeCalibrated": 1201.689,
-        "dischargeStart": 1027.151
-    },
-    "charger_pause_until": 1750616432,
+    "forceChargeMode": false,
     "charger_pending_switch": false,
-    "charging_loss": {
-        "chargeStart": 1209.369,
-        "dischargeStart": 1027.151
+    "baseload_pending_switch": false,
+    "charge_session": {
+        "chargeStart": 1720.52,
+        "chargeCalibrated": 1712.84,
+        "dischargeStart": 1427.361
     },
-    "charger_loss_dynamic": 0.22339421753400157,
-    "oldBaseload": 3920,
-    "apiOnline": true,
-    "totalAllowedUpdates": 1115,
-    "totalFailedUpdates": 2,
-    "totalAllowedFailedUpdates": 2
+    "charging_loss": {
+        "chargeStart": 1720.52,
+        "dischargeStart": 1427.361
+    },
+    "charger_loss_dynamic": 0.21816133407142133,
+    "oldBaseload": 76,
+    "battery_calibrated": true
 }

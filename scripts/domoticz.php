@@ -18,7 +18,7 @@
 	$pvCounterIDX 	        = '59';
 	$ecoFlowTempIDX 		= '50';
 	$batteryRTEIDX 		    = '145';
-	$usageCounterIDX 		= '146';
+	//$usageCounterIDX 		= '146';
 	
 // = URLs
 	$baseUrl = 'http://'.$domoticzIP.'/json.htm?type=command&param=getdevices&rid=';
@@ -32,8 +32,8 @@
 		'pvCounter'               => $baseUrl . $pvCounterIDX,
 		'outputCounterIDX'        => $baseUrl . $outputCounterIDX,
 		'inputCounterIDX'         => $baseUrl . $inputCounterIDX,
-		'batteryRTEIDX'           => $baseUrl . $batteryRTEIDX,
-		'usageCounterIDX'         => $baseUrl . $usageCounterIDX
+		'batteryRTEIDX'           => $baseUrl . $batteryRTEIDX
+		//'usageCounterIDX'         => $baseUrl . $usageCounterIDX
 	];  
 	
 //															     //
@@ -56,9 +56,9 @@
 	  global $pvCounterIDX;
 	  global $ecoFlowTempIDX;
 	  global $batteryRTEIDX;
-	  global $usageCounterIDX;
+	 // global $usageCounterIDX;
 	  
-	  if ($idx == $usageCounterIDX || $idx == $inputCounterIDX || $idx == $outputCounterIDX || $idx == $batterySOCIDX || $idx == $batteryVoltageIDX || $idx == $pvCounterIDX || $idx == $ecoFlowTempIDX || $idx == $batteryRTEIDX){
+	  if (/*$idx == $usageCounterIDX || */$idx == $inputCounterIDX || $idx == $outputCounterIDX || $idx == $batterySOCIDX || $idx == $batteryVoltageIDX || $idx == $pvCounterIDX || $idx == $ecoFlowTempIDX || $idx == $batteryRTEIDX){
 	  $reply=json_decode(file_get_contents('http://'.$domoticzIP.'/json.htm?type=command&param=udevice&idx='.$idx.'&nvalue=0&svalue='.$cmd.';0'),true);
 	  }
 	  
@@ -102,8 +102,9 @@ if (!$isManualRun){
 	UpdateDomoticzDevice($batteryDischargeTimeIDX, '00:00');
 	}
 	sleep(0.1);
-	UpdateDomoticzDevice($batteryRTEIDX, ''.$chargerLoss.'');
-	sleep(0.1);
-	UpdateDomoticzDevice($usageCounterIDX, ''.$hwP1Usage.'');
+	$chargerLossDomo = ($chargerLoss * 100);
+	UpdateDomoticzDevice($batteryRTEIDX, ''.$chargerLossDomo.'');
+	//sleep(0.1);
+	//UpdateDomoticzDevice($usageCounterIDX, ''.$hwP1Usage.'');
 }
 ?>

@@ -1,52 +1,77 @@
 [
     {
-        "charged": 3.705,
-        "discharged": 2.849,
-        "loss": 0.23104
+        "charged": 5.053,
+        "discharged": 4.004,
+        "loss": 0.2075994
     },
     {
-        "charged": 3.341,
-        "discharged": 2.575,
-        "loss": 0.22927
+        "charged": 1.554,
+        "discharged": 1.191,
+        "loss": 0.2335907
     },
     {
-        "charged": 4.813,
-        "discharged": 3.752,
-        "loss": 0.22044
+        "charged": 4.99,
+        "discharged": 3.914,
+        "loss": 0.2156313
     },
     {
-        "charged": 4.397,
-        "discharged": 3.438,
-        "loss": 0.2181
+        "charged": 8.742,
+        "discharged": 6.853,
+        "loss": 0.2160833
     },
     {
-        "charged": 1.598,
-        "discharged": 1.247,
-        "loss": 0.21965
+        "charged": 5.153,
+        "discharged": 4.036,
+        "loss": 0.2167669
     },
     {
-        "charged": 4.101,
-        "discharged": 3.209,
-        "loss": 0.21751
+        "charged": 5.565,
+        "discharged": 4.348,
+        "loss": 0.2186882
     },
     {
-        "charged": 1.272,
-        "discharged": 0.96,
-        "loss": 0.24528
+        "charged": 9.19,
+        "discharged": 7.17,
+        "loss": 0.2198041
     },
     {
-        "charged": 2.885,
-        "discharged": 2.28,
-        "loss": 0.20971
+        "charged": 9.028,
+        "discharged": 7.066,
+        "loss": 0.2173239
     },
     {
-        "charged": 4.05,
-        "discharged": 3.112,
-        "loss": 0.2316
+        "charged": 1.387,
+        "discharged": 1.084,
+        "loss": 0.2184571
     },
     {
-        "charged": 6.768,
-        "discharged": 5.313,
-        "loss": 0.21498
+        "charged": 5.047,
+        "discharged": 3.972,
+        "loss": 0.2129978
+    },
+    {
+        "charged": 5.231,
+        "discharged": 4.11,
+        "loss": 0.2142994
+    },
+    {
+        "charged": 1.676,
+        "discharged": 1.274,
+        "loss": 0.2398568
+    },
+    {
+        "charged": 5.06,
+        "discharged": 4,
+        "loss": 0.2094862
+    },
+    {
+        "charged": 26.177,
+        "discharged": 20.513,
+        "loss": 0.2163732
+    },
+    {
+        "charged": 5.588,
+        "discharged": 4.384,
+        "loss": 0.2154617
     }
 ]

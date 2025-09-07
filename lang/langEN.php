@@ -12,6 +12,7 @@ if ($debugLang == 'EN'){
 	printRow('Charger 1', $hwChargerOneStatus);
 	printRow('Charger 2', $hwChargerTwoStatus);
 	printRow('Charger 3', $hwChargerThreeStatus);
+	printRow('Charger 4', $hwChargerFourStatus);
 	printRow('Charger usage', $hwChargerUsage, 'Watt');
 	echo ' '.PHP_EOL;
 
@@ -48,7 +49,6 @@ if ($debugLang == 'EN'){
 	printRow('Inverter 1 Temperature', $invOneTemp, '°C');
 	printRow('Inverter 2 Temperature', $invTwoTemp, '°C');
 	printRow('Inverter cooling fans', $hwInvFanStatus);
-	printRow('Inverter API status', ($vars['apiOnline'] ? 'online' : 'offline'));
 	echo ' '.PHP_EOL;
 
 // === Print Energy Status		
@@ -85,5 +85,6 @@ if ($debugLang == 'EN'){
 	} else {
 		echo '  ~~ No messages'.PHP_EOL;	
 	}
+	
 }
 ?>

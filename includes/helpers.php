@@ -4,22 +4,24 @@
 //           		 PiBattery Solar Storage                     //
 //                           Helpers                             //
 // **************************************************************//
-//                                                               //
-
+//
+	
 // -------------------------------------------------
 // Determine winter/summertime schedule
 // -------------------------------------------------
-	$scheduleAllowed = false;
-	if ($winterPause == 'yes' && $isWinter && !$isDaytime) {
-	$scheduleAllowed = true;
-	
-	} elseif ($winterPause == 'yes' && !$isWinter) {
-	$scheduleAllowed = true;
-	
-	} elseif ($winterPause == 'no') {
-	$scheduleAllowed = true;
+	if ($runBaseload || $isManualRun){
+		$scheduleAllowed = false;
+		if ($winterPause == 'yes' && $isWinter && !$isDaytime) {
+		$scheduleAllowed = true;
+		
+		} elseif ($winterPause == 'yes' && !$isWinter) {
+		$scheduleAllowed = true;
+		
+		} elseif ($winterPause == 'no') {
+		$scheduleAllowed = true;
+		}
 	}
-
+	
 // -------------------------------------------------
 // Schedule
 // -------------------------------------------------
@@ -71,7 +73,7 @@
 	if ($runCharger){
 		if ($hwInvFanStatus == 'Off' && $invTemp >= 35){
 			switchHwSocket('fan','On');
-		} elseif ($hwInvFanStatus == 'On' && $invTemp < 30 && $hwInvReturn == 0){
+		} elseif ($hwInvFanStatus == 'On' && $invTemp < 30){
 			switchHwSocket('fan','Off');
 		}
 	}
@@ -80,25 +82,24 @@
 // = Batt% calibration
 // = -------------------------------------------------
 	if ($runCharger){
-		if ($pvAvInputVoltage > ($batteryVolt + 1.3)
-			&& $hwChargerOneStatus == 'Off' && $hwChargerTwoStatus == 'Off' && $hwChargerThreeStatus == 'Off'
+		if ($pvAvInputVoltage > ($batteryVolt + 1.7)
+			&& $hwChargerOneStatus == 'Off' && $hwChargerTwoStatus == 'Off' && $hwChargerThreeStatus == 'Off' && $hwChargerFourStatus == 'Off'
 			&& (!isset($vars['battery_calibrated']) || $vars['battery_calibrated'] !== true)
 			) {
 
-			$chargeStart  		= round($hwChargersTotalInput, 5);
-			$chargeCalibrated	= round($hwChargersTotalInput - $batteryCapacitykWh, 5);
-			$dischargeStart 	= round($hwInvTotal, 5);
+			$chargeStart  		= round($hwChargersTotalInput, 7);
+			$chargeCalibrated	= round($hwChargersTotalInput - $batteryCapacitykWh, 7);
+			$dischargeStart 	= round($hwInvTotal, 7);
 
 // = Start Charge Loss Calculation
 		if (!isset($vars['charge_loss_calculation']) || $vars['charge_loss_calculation'] !== true){
-			
 			$vars['charging_loss'] = [
 				'chargeStart' => $chargeStart,
 				'dischargeStart' => $dischargeStart
 			];
 			
 			$vars['charge_loss_calculation'] = true;
-			
+			$varsChanged = true;			
 			return;
 			
 		} elseif ($vars['charge_loss_calculation'] === true) {
@@ -112,9 +113,9 @@
 // === Log session only if new
 			$sessionFile = $piBatteryPath . 'data/charge_sessions.json';
 			$newSession = [
-			'charged'     		 => round($chargedkWh, 5),
-			'discharged'     	 => round($dischargedkWh, 5),
-			'loss'        		 => round($sessionLoss, 5)
+			'charged'     		 => round($chargedkWh, 7),
+			'discharged'     	 => round($dischargedkWh, 7),
+			'loss'        		 => round($sessionLoss, 7)
 			];
 
 			$sessions = [];
@@ -160,30 +161,33 @@
 
 			if (count($losses) >= $chargeSessions) {
 				$chargerLoss = array_sum($losses) / count($losses);
+				if ($chargerLoss != $vars['charger_loss_dynamic']) {
+				$varsChanged = true;
 				$vars['charger_loss_dynamic'] = $chargerLoss;
-				writeJsonLocked($varsFile, $vars);
+				}
 			}
 			
 				if (isset($vars['charge_loss_calculation'])) {
+					$varsChanged = true;
 					unset($vars['charge_loss_calculation']);
 				}
 			}
 		}
 
 // = End Charge Loss calculation
+			$varsChanged = true;
 			$vars['charge_session'] = [
 				'chargeStart'     => $chargeStart,
 				'chargeCalibrated'=> $chargeCalibrated,
 				'dischargeStart'  => $dischargeStart
 			];
 				
-			$vars['battery_calibrated'] = true;	
-			writeJsonLocked($varsFile, $vars);
+			$vars['battery_calibrated'] = true;
 		}
 
 		if (isset($vars['battery_calibrated']) && $batteryPct < $chargerPausePct) {
 			unset($vars['battery_calibrated']);
-			writeJsonLocked($varsFile, $vars);
+			$varsChanged = true;
 		}
 	}
 	
@@ -216,36 +220,48 @@
 // = -------------------------------------------------
 	if ($runCharger){
 // === Activate pause when battery is (almost) full > 26,85V
-		if (!$pauseCharging && $pvAvInputVoltage > ($batteryVolt + 1.2) && $hwChargerUsage == 0) {
+		if (!$pauseCharging && $vars['pauseCharging'] !== true && $pvAvInputVoltage > ($batteryVolt + 1.8) && $hwChargerUsage <= $chargerWattsIdle) {
 			$pauseCharging = true;
+			//$vars['pauseCharging'] = true;
+			//$varsChanged = true;
 		}
 
 // === End pause when battery in under the defined % value
-		if ($pauseCharging && $batteryPct < $chargerPausePct) {
+		if ($pauseCharging && $vars['pauseCharging'] !== false && $batteryPct < $chargerPausePct) {
 			$pauseCharging = false;
+			//$vars['pauseCharging'] = false;
+			//$varsChanged = true;
 		}
 
 		if (($vars['pauseCharging'] ?? null) !== $pauseCharging) {
 			$vars['pauseCharging'] = $pauseCharging;
-			writeJsonLocked($varsFile, $vars);
+			$varsChanged = true;
 		}
 
 		$varsState = [];
 		$varsState['pauseCharging'] = $vars['pauseCharging'] ?? false;
 	}
-
-// = -------------------------------------------------	
-// = Keep BMS Awake
-// = -------------------------------------------------
-	//if ($runCharger){
-	//	if (($keepBMSalive == 'yes' && $pvAvInputVoltage <= ($batteryVolt - 3.6) && $hwChargerUsage == 0 && $hwInvReturn == 0) && (!isset($vars['keepBMSalive']) || $vars['keepBMSalive'] !== true)) {
-	//		$vars['keepBMSalive'] = true;
-	//		writeJsonLocked($varsFile, $vars);
-			
-	//	} elseif (($keepBMSalive == 'yes' && $pvAvInputVoltage >= ($batteryVolt - 2.2)) && (!isset($vars['keepBMSalive']) || $vars['keepBMSalive'] == true)) {
-	//		$vars['keepBMSalive'] = false;
-	//		writeJsonLocked($varsFile, $vars);	
-	//	}
-	//}
 	
+// = -------------------------------------------------	
+// = Determine injection
+// = -------------------------------------------------
+	if ($runBaseload){
+		if ($hwInvReturn != 0 && $invInjection === false && $idleInjection == 'no') {
+			$varsChanged = true;		
+			$vars['invInjection'] = true;
+			
+		} elseif ($hwInvReturn >= $idleInjectionWatts && $hwInvReturn <= 0 && $invInjection === true && $idleInjection == 'yes') {
+			$varsChanged = true;		
+			$vars['invInjection'] = false;
+			
+		} elseif ($hwInvReturn < $idleInjectionWatts && $invInjection === false && $idleInjection == 'yes') {
+			$varsChanged = true;		
+			$vars['invInjection'] = true;
+			
+		} elseif ($hwInvReturn == 0 && $invInjection === true) {
+			$varsChanged = true;		
+			$vars['invInjection'] = false;
+		}
+	}
+
 ?>
