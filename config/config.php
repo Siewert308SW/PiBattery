@@ -17,8 +17,8 @@
 	$winterPause			= 'yes';							 // Value 'yes' or 'no' if 'yes' then inverter will not inject during wintertime unless battery is fully charged, doesn't work when $runInfinity = 'no'
 	
 // = Location variables
-	$latitude               = '53.30261';   					 // Latitude
-	$longitude              = '-6.60988';   					 // Longitude
+	$latitude               = '00.00000';   					 // Latitude
+	$longitude              = '-0.00000';   					 // Longitude
 	$zenitLat               = '89.5';       					 // Zenith latitude: the highest point of the sky as seen from the observer’s location
 	$zenitLong              = '91.7';       					 // Zenith longitude: the highest point of the sky as seen from the observer’s location
 	$timezone               = 'Europe/Amsterdam'; 				 // My php.ini doesn't apply the timezone, so it’s set manually here
@@ -56,15 +56,15 @@
 	$fase                   = 1;            				     // Which phase to protect
 
 // = HomeWizard variables
-	$hwP1IP                 = '192.168.178.77';     			 // HomeWizard P1-meter IP address
-	$hwKwhIP                = '192.168.178.83';     			 // HomeWizard Solar kWh meter IP address
-	$hwEcoFlowOneIP         = '192.168.178.88';     			 // HomeWizard EcoFlow One socket IP address
-	$hwEcoFlowTwoIP         = '192.168.178.98';     			 // HomeWizard EcoFlow Two socket IP address
-	$hwChargerOneIP         = '192.168.178.90';     			 // HomeWizard Charger ONE (350W socket) IP address
-	$hwChargerTwoIP         = '192.168.178.89';     			 // HomeWizard Charger TWO (600W socket) IP address
-	$hwChargerThreeIP       = '192.168.178.91';    				 // HomeWizard Charger THREE (350W socket) IP address
-	$hwChargerFourIP        = '192.168.178.103';    			 // HomeWizard Charger FOUR (300W socket) IP address
-	$hwEcoFlowFanIP         = '192.168.178.100';    			 // HomeWizard FAN socket IP address
+	$hwP1IP                 = '192.168.178.1';     			 // HomeWizard P1-meter IP address
+	$hwKwhIP                = '192.168.178.2';     			 // HomeWizard Solar kWh meter IP address
+	$hwEcoFlowOneIP         = '192.168.178.3';     			 // HomeWizard EcoFlow One socket IP address
+	$hwEcoFlowTwoIP         = '192.168.178.4';     			 // HomeWizard EcoFlow Two socket IP address
+	$hwChargerOneIP         = '192.168.178.5';     			 // HomeWizard Charger ONE (350W socket) IP address
+	$hwChargerTwoIP         = '192.168.178.6';     			 // HomeWizard Charger TWO (600W socket) IP address
+	$hwChargerThreeIP       = '192.168.178.7';    				 // HomeWizard Charger THREE (350W socket) IP address
+	$hwChargerFourIP        = '192.168.178.8';    			 // HomeWizard Charger FOUR (300W socket) IP address
+	$hwEcoFlowFanIP         = '192.168.178.9';    			 // HomeWizard FAN socket IP address
 
 // = Chargers
 	$chargers = [
@@ -75,9 +75,9 @@
 	];
 
 // = Ecoflow Powerstream API variables
-	$ecoflowAccessKey	    = '7jTgoTSjLAQxnqYFC9Q6jlfCfEeZ03bp';// Powerstream API access key
-	$ecoflowSecretKey	    = '0oc4tLH2JZUawCh5IPU5uL4kTnkbxW8d';// Powerstream API secret key
-	$ecoflowOneSerialNumber = 'HW51ZEH4SF5R5124';		         // Powerstream One serialnummer
-	$ecoflowTwoSerialNumber = 'HW51ZEH49G8C1263';		         // Powerstream Two serialnummer
+	$ecoflowAccessKey	    = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';// Powerstream API access key
+	$ecoflowSecretKey	    = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';// Powerstream API secret key
+	$ecoflowOneSerialNumber = 'HWXXXXXXXXXXXXXX';		         // Powerstream One serialnummer
+	$ecoflowTwoSerialNumber = 'HWXXXXXXXXXXXXXX';		         // Powerstream Two serialnummer
 
 ?>
