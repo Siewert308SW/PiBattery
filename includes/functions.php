@@ -267,7 +267,7 @@
 // = Function to calculate if chargers may be switched
 // = -------------------------------------------------
 	function chargerSet(array $chargers, float $P1ChargerUsage): void {
-		global $invInjection, $chargerhyst, $realUsage, $hwP1Usage, $hwInvReturn, $hwSolarReturn, $vars, $varsFile, $hwChargerUsage, $chargerWattsIdle, $chargeLossCalculation, $pvAvInputVoltage, $batteryVolt, $currentTime, $chargerPause, $pauseCharging, $piBatteryPath, $debugMode, $debug, $debugLang, $isManualRun, $varsChanged, $ecoflowMaxOutput;
+		global $isWinter, $invInjection, $chargerhyst, $realUsage, $hwP1Usage, $hwInvReturn, $hwSolarReturn, $vars, $varsFile, $hwChargerUsage, $chargerWattsIdle, $chargeLossCalculation, $pvAvInputVoltage, $batteryVolt, $currentTime, $chargerPause, $pauseCharging, $piBatteryPath, $debugMode, $debug, $debugLang, $isManualRun, $varsChanged, $ecoflowMaxOutput;
 
 		$currentTotal = 0;
 
@@ -279,11 +279,11 @@
 
 // === Determine chargers behaviour
 		if ($P1ChargerUsage < 0) {
-			$availableSolarPower = abs($P1ChargerUsage); 						 // Heavy Solar Power surplus
+			$availableSolarPower = abs($P1ChargerUsage); // Heavy Solar Power surplus
 		} elseif ($P1ChargerUsage >= 0 && $P1ChargerUsage < ($chargerhyst / 2)) {
-			$availableSolarPower = $chargerhyst; 								 // Some grid import, toggle chargers within hysteresis allowed
+			$availableSolarPower = $chargerhyst; 		 // Some grid import, toggle chargers within hysteresis allowed
 		} else {
-			$availableSolarPower = 0;   										 // Heavy grid import, all chargers have to toggle OFF
+			$availableSolarPower = 0;   				 // Heavy grid import, all chargers have to toggle OFF
 		}
 
 // === Find master charger
@@ -364,33 +364,9 @@
 		$bestCombi = $combinations[0]['names'] ?? [];
 		$bestTotal = $combinations[0]['total'] ?? 0;
 
-/*
-// === Battery almost fully charged, force a charger to top the battery of
-	if ($pvAvInputVoltage >= ($batteryVolt + 1.5)) {
-		$forceCharger = 'charger2';
-
-		if (!in_array($forceCharger, $bestCombi) || count($bestCombi) > 1) {
-			$bestCombi = [$forceCharger];
-			$combinations = [['names' => $bestCombi, 'total' => $chargers[$forceCharger]['power']]];
-			$allCombinations = $combinations;
-
-			$vars['forceChargeMode'] = true;
-			$varsChanged = true;
-
-			if ($debugLang == 'NL') {
-				debugMsg("Batterij bijna vol - alleen $forceCharger actief houden tot idle bereikt is");
-			} else {
-				debugMsg("Battery nearly full - keep only $forceCharger active until idle reached");
-			}
-		}
-	} elseif ($pvAvInputVoltage < ($batteryVolt + 1.5)) {
-			$vars['forceChargeMode'] = false;
-			$varsChanged = true;
-	}
-*/
-
 // === Battery almost fully charged, force chargers to top the battery off
-	if ($pvAvInputVoltage > ($batteryVolt + 1.5) && $hwChargerUsage > $chargerWattsIdle) {
+    $forceTopoff = false;
+	if ($pvAvInputVoltage >= ($batteryVolt + 1.5) && $hwChargerUsage > 1) {
 		$forceCharger = ['charger1', 'charger2', 'charger3'];
 
 		if (array_diff($forceCharger, $bestCombi) || count($bestCombi) > count($forceCharger)) {
@@ -403,7 +379,7 @@
 
 			$vars['forceChargeMode'] = true;
 			$varsChanged = true;
-
+            $forceTopoff = true;
 			if ($debugLang == 'NL') {
 				debugMsg("Batterij bijna vol - alleen " . implode(', ', $forceCharger) . " actief houden tot idle bereikt is");
 			} else {
@@ -500,57 +476,67 @@
 			}
 		}
 
-// === Check if charging is paused
+// === Check if toggling chargers needs to be paused
 	$pauseUntil       = $vars['charger_pause_until'] ?? 0;
 	$pendingSwitch 	  = $vars['charger_pending_switch'] ?? false;
 	$currentTimestamp = time();
 
-	if (($vars['forceChargeMode'] ?? false) !== true) {
-	if ($pauseUntil >= $currentTimestamp) {
-		if ($debugLang == 'NL'){
-		debugMsg("Pauze actief tot " . date("H:i:s", $pauseUntil) . ", geen actie");
-		} else {
-		debugMsg("Pause active till " . date("H:i:s", $pauseUntil) . ", no action required");	
-		}
-
-		return;
+// === Override pause	
+	$pauseOverride = false;
+	$solarReturn = abs($hwSolarReturn);
+	
+	if ($solarReturn < $hwChargerUsage || $forceTopoff == true || $vars['forceChargeMode'] == true) {
+		$pauseOverride = true;
 	}
 
-
-	if ($pendingSwitch) {
-		if ($debugLang == 'NL'){
-		debugMsg("Pauze verlopen, volgende run schakeling uitvoeren");
-		} else {
-		debugMsg("Pause expired, next run charger(s) toggled ");	
-		}
-
-		if ($vars['charger_pending_switch'] == true) {
-		$varsChanged = true;		
-		$vars['charger_pending_switch'] = false;
-		unset($vars['charger_pause_until']);
-		}
 		
-	} elseif ($schakelingNodig) {
-		$newPauseUntil = time() + $chargerPause;
-		if (
-			($vars['charger_pause_until'] ?? 0) !== $newPauseUntil ||
-			($vars['charger_pending_switch'] ?? false) !== true
-		) {
-			if ($vars['charger_pending_switch'] == false) {
-			$varsChanged = true;	
-			$vars['charger_pause_until'] = $newPauseUntil;
-			$vars['charger_pending_switch'] = true;
+// === Pause toggling chargers	
+	if ($pauseOverride == false) {
+		if ($pauseUntil >= $currentTimestamp) {
+			if ($debugLang == 'NL'){
+			debugMsg("Pauze actief tot " . date("H:i:s", $pauseUntil) . ", geen actie");
+			} else {
+			debugMsg("Pause active till " . date("H:i:s", $pauseUntil) . ", no action required");	
 			}
+
+			return;
 		}
 
+
+		if ($pendingSwitch) {
 			if ($debugLang == 'NL'){
-			debugMsg("Schakeling vereist, pauze gestart tot " . date("H:i:s", $vars['charger_pause_until']));
+			debugMsg("Pauze verlopen, volgende run schakeling uitvoeren");
 			} else {
-			debugMsg("Charger toggle required, pause started till " . date("H:i:s", $vars['charger_pause_until']));	
+			debugMsg("Pause expired, next run charger(s) toggled ");	
 			}
 
-		return;
-	}
+			if ($vars['charger_pending_switch'] == true) {
+			$varsChanged = true;		
+			$vars['charger_pending_switch'] = false;
+			unset($vars['charger_pause_until']);
+			}
+			
+		} elseif ($schakelingNodig) {
+			$newPauseUntil = time() + $chargerPause;
+			if (
+				($vars['charger_pause_until'] ?? 0) !== $newPauseUntil ||
+				($vars['charger_pending_switch'] ?? false) !== true
+			) {
+				if ($vars['charger_pending_switch'] == false) {
+				$varsChanged = true;	
+				$vars['charger_pause_until'] = $newPauseUntil;
+				$vars['charger_pending_switch'] = true;
+				}
+			}
+
+				if ($debugLang == 'NL'){
+				debugMsg("Schakeling vereist, pauze gestart tot " . date("H:i:s", $vars['charger_pause_until']));
+				} else {
+				debugMsg("Charger toggle required, pause started till " . date("H:i:s", $vars['charger_pause_until']));	
+				}
+
+			return;
+		}
 	}
 
 // === Toggle chargers ON/OFF		
@@ -558,7 +544,7 @@
 			$shouldBeOn = in_array($name, $bestCombi);
 			$isOn = ($data['status'] === 'On');
 
-		if (($shouldBeOn && !$isOn && $realUsage <= 900 && $hwChargerUsage == 0 && !$chargeLossCalculation && !$pauseCharging) || ($shouldBeOn && !$isOn && $realUsage <= 3300 && $hwChargerUsage != 0 && !$chargeLossCalculation && !$pauseCharging)) {
+			if ($shouldBeOn && !$isOn && !$chargeLossCalculation && !$pauseCharging && $hwSolarReturn < -500) {
 				
 			if (!$first) {
 					if (!$isManualRun){

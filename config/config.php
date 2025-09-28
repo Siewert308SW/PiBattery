@@ -37,13 +37,13 @@
 // = Charger variables
 	$chargerWattsIdle       = 30;          					     // Standby Watts of all chargers when the batteries are full
 	$chargerPausePct        = 85;           					 // When battery has been charged 100% till what % has it to drop before charging is allowed again
-	$chargerhyst            = 250;          					 // Only turn off chargers if import exceeds this many Watts (prevents flip-flopping)
-	$chargerPause           = 60;          					 	 // Delay in seconds before toggling chargers (prevents flip-flops), But only if realUsage is lower then 2500w
+	$chargerhyst            = 300;          					 // Only turn off chargers if import exceeds this many Watts (prevents flip-flopping)
+	$chargerPause           = 120;          					 	 // Delay in seconds before toggling chargers (prevents flip-flops), But only if realUsage is lower then 2500w
 	$chargeSessions			= 15;                                // How many charge session to calculate charging loss 
 	
 // = Baseload variables
 	$baseloadDelta			=  15;
-	$baseloadSplitter		= 525;
+	$baseloadSplitter		= 500;
 	
 // = Idle injection variables
 	$idleInjection			= 'yes';							 // During dayTime inverters keep injection at idle to speed up startup time if injection is needed
@@ -68,10 +68,10 @@
 
 // = Chargers
 	$chargers = [
-		'charger1' => ['ip' => ''.$hwChargerOneIP.'', 'power' => 350, 'label' => 'one', 'master' => true, 'spare_charger' => false],
+		'charger1' => ['ip' => ''.$hwChargerOneIP.'', 'power' => 300, 'label' => 'one', 'master' => true, 'spare_charger' => false],
 		'charger2' => ['ip' => ''.$hwChargerTwoIP.'', 'power' => 600, 'label' => 'two', 'master' => false, 'spare_charger' => false],
-		'charger3' => ['ip' => ''.$hwChargerThreeIP.'', 'power' => 350, 'label' => 'three', 'master' => false, 'spare_charger' => false],
-		'charger4' => ['ip' => ''.$hwChargerFourIP.'', 'power' => 320, 'label' => 'four', 'master' => false, 'spare_charger' => false],
+		'charger3' => ['ip' => ''.$hwChargerThreeIP.'', 'power' => 300, 'label' => 'three', 'master' => false, 'spare_charger' => false],
+		'charger4' => ['ip' => ''.$hwChargerFourIP.'', 'power' => 300, 'label' => 'four', 'master' => false, 'spare_charger' => true],
 	];
 
 // = Ecoflow Powerstream API variables

@@ -28,6 +28,7 @@ if ($debugLang == 'EN'){
 	} else {
 	printRow('Summer program', 'Active', '');		
 	}
+	printRow('Daytime program', ($isDaytime ? 'Active' : 'Not active'));	
 	echo ' '.PHP_EOL;
 	
 // === Print Battery Status		
@@ -46,9 +47,11 @@ if ($debugLang == 'EN'){
 
 // === Print Inverter Status 
 	echo ' -/- EcoFlow Inverters               -\-'.PHP_EOL;
+	printRow('Inverter 1 Output', $hwInvOneReturn, 'Watt');
+	printRow('Inverter 2 Output', $hwInvTwoReturn, 'Watt');
 	printRow('Inverter 1 Temperature', $invOneTemp, '°C');
 	printRow('Inverter 2 Temperature', $invTwoTemp, '°C');
-	printRow('Inverter cooling fans', $hwInvFanStatus);
+	printRow('Inverter fan', $hwInvFanStatus);
 	echo ' '.PHP_EOL;
 
 // === Print Energy Status		

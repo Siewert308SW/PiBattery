@@ -5,15 +5,15 @@
     "charger_pending_switch": false,
     "baseload_pending_switch": false,
     "charge_session": {
-        "chargeStart": 1720.52,
-        "chargeCalibrated": 1712.84,
-        "dischargeStart": 1427.361
+        "chargeStart": 1848.13,
+        "chargeCalibrated": 1840.45,
+        "dischargeStart": 1526.883
     },
     "charging_loss": {
-        "chargeStart": 1720.52,
-        "dischargeStart": 1427.361
+        "chargeStart": 1848.13,
+        "dischargeStart": 1526.883
     },
-    "charger_loss_dynamic": 0.21816133407142133,
-    "oldBaseload": 76,
-    "battery_calibrated": true
+    "charger_loss_dynamic": 0.21924141512204062,
+    "oldBaseload": 0,
+    "battery_empty": true
 }

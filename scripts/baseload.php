@@ -19,11 +19,11 @@
 	}
 	
 // = -------------------------------------------------	
-// = Idle injectie during dayTime  && $realUsage > $baseloadSplitter
+// = Idle injectie during dayTime  && $realUsage > $baseloadSplitter && !$isWinter
 // = -------------------------------------------------
 	$idleInjectionVar = false;
 	
-	if ($idleInjection == 'yes' && $realUsage > $idleInjectionThreshold && $newBaseload < ($ecoflowMinOutput * 10) && $hwChargerUsage == 0 && $isDaytime && !$isWinter && $batteryPct > $batteryMinimum && $batteryPct < 99.99) {
+	if ($idleInjection == 'yes' && $realUsage > $idleInjectionThreshold && $newBaseload < ($ecoflowMinOutput * 10) && $hwChargerUsage == 0 && $isDaytime && $batteryPct > $batteryMinimum && $batteryPct < 99.99) {
 		$newBaseload = abs($idleInjectionWatts * 10);
 		$idleInjectionVar = true;
 	}
@@ -90,11 +90,30 @@
 	if ($batteryPct <= $batteryMinimum) {
 		$forceBaseloadOff = true;
 		$newBaseload = 0;
+		
+		if (!isset($vars['battery_empty']) && $isWinter && $winterPause == 'yes') {
+			
+			if ($hwInvOneStatus == 'On' || $hwInvTwoStatus == 'On'){
+				switchHwSocket('invOne','Off');
+				switchHwSocket('invTwo','Off');
+			}
+		
+			$vars['battery_empty'] = true;
+			$varsChanged = true;
+		}
+		
 		debugMsg('$forceBaseloadOff battery pct low');
 	}
-
+	
+// Set Baseload null when inverter status is OFF
+	if ($hwInvOneStatus == 'Off' || $hwInvTwoStatus == 'Off'){
+		$forceBaseloadOff = true;
+		$newBaseload = 0;
+		debugMsg('$forceBaseloadOff (Inverters aren,t online)');
+	}
+		
 // === Set baseload to null when battery calibration is still running
-	if (isset($vars['charge_loss_calculation'])) {
+	if (isset($vars['charge_loss_calculation']) or $batteryPct > 100.00) {
 		$forceBaseloadOff = true;
 		$newBaseload = 0;
 		debugMsg('$forceBaseloadOff (Battery calibration)');
@@ -123,9 +142,7 @@
 // = -------------------------------------------------
 
 // === If updateNeeded then set new baseload  && !$isManualRun	
-	if ($updateNeeded && $forceBaseloadOff == false) {
-	//if (!$isManualRun && !$chargeLossCalculation && $forceBaseloadOff == false) {
-//if ($isManualRun) {		
+	if ($updateNeeded && $forceBaseloadOff == false) {		
 		$actualBaseloadDelta = abs(($newBaseload / 10) - $oldBaseload);
 
 // === Determine is baseload update needs to be delayed

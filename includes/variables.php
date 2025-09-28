@@ -19,7 +19,7 @@
 	$currentTime 			= date('H:i');
 	$dateNow 				= date('Y-m-d H:i:s');
 	$dateTime 				= new DateTime(''.$dateNow.'', new DateTimeZone(''.$timezone.''));
-	$isWinter 				= ($dateTime->format('n') < 4 || $dateTime->format('n') > 9);
+	$isWinter 				= ($dateTime->format('n') < 3 || $dateTime->format('n') >= 9);
 	
 // = Check DST time
 	$isDST = $dateTime->format("I");
@@ -44,13 +44,11 @@
 	$sunsetAdjusted 		= $sunsetTime->format('H:i');
 
 	$isDaytime 				= ($currentTime >= $sunriseAdjusted && $currentTime <= $sunsetAdjusted);
+	$isNightTime			= ($currentTime >= '00:00' && $currentTime < $sunriseAdjusted);
 
-// = Huidige variables ophalen
+// = Get current variable files
 	$varsFile               = $piBatteryPath . 'data/variables.json';
 	$vars                   = file_exists($varsFile) ? json_decode(file_get_contents($varsFile), true) : [];
-
-	//$varsTestFile           = $piBatteryPath . 'data/variablesTest.json';
-	//$varsTest               = file_exists($varsTestFile) ? json_decode(file_get_contents($varsTestFile), true) : [];
 	
 	$varsTimerFile          = $piBatteryPath . 'data/timeStamp.json';
 	$varsTimer              = file_exists($varsTimerFile ) ? json_decode(file_get_contents($varsTimerFile ), true) : [];
@@ -119,9 +117,6 @@
 	$oldBaseload 			= $vars['oldBaseload'] ?? 0;
 	
 // = Various
-	//$batteryMinimum 		= $isWinter ? 25 : $batteryMinimum;
-	//$chargerhyst 			= $isWinter ? 500 : $chargerhyst;
-	//$chargerPause 			= $isWinter ? 30 : $chargerPause;
 	$chargerLoss 			= round($vars['charger_loss_dynamic'] ?? 0.21579680628027725, 7);	
 	$pauseCharging 			= $vars['pauseCharging'] ?? false;
 	$forceChargeMode 		= $vars['forceChargeMode'] ?? false;
@@ -148,7 +143,7 @@
 	$brutoDischarged 		= round(($dischargeEnd - $dischargeStart), 3);
 	$batteryAvailable	    = round((($batteryCapacitykWh) - ($brutoDischarged - ($brutoCharged  * (1 - $chargerLoss)))), 2);
 	$batteryPct 			= round(($batteryAvailable / $batteryCapacitykWh) * 100, 2);
-
+	
 // = Get status for all chargers
 	foreach ($chargers as $name => &$data) {
 		$data['status'] = getHwStatus($data['ip']);

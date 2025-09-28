@@ -11,7 +11,10 @@
 // -------------------------------------------------
 	if ($runBaseload || $isManualRun){
 		$scheduleAllowed = false;
-		if ($winterPause == 'yes' && $isWinter && !$isDaytime) {
+		if ($winterPause == 'yes' && $isWinter && !$isDaytime && !isset($vars['battery_empty'])) {
+		$scheduleAllowed = true;
+		
+		} elseif ($winterPause == 'yes' && $isWinter && $isDaytime && !isset($vars['battery_empty']) && $realUsage >= $idleInjectionThreshold) {
 		$scheduleAllowed = true;
 		
 		} elseif ($winterPause == 'yes' && !$isWinter) {
@@ -66,6 +69,22 @@
 			}
 		}
 	}
+
+// -------------------------------------------------
+// Reset $vars['battery_empty']
+// -------------------------------------------------
+	if ($runBaseload){
+		if ($winterPause == 'yes' && $isNightTime && $batteryPct >= 60 && isset($vars['battery_empty'])) {
+			
+			if ($hwInvOneStatus == 'Off' || $hwInvTwoStatus == 'Off'){
+				switchHwSocket('invOne','On');
+				switchHwSocket('invTwo','On');
+			}
+						
+			unset($vars['battery_empty']);
+			$varsChanged = true;
+		}
+	}
 	
 // = -------------------------------------------------	
 // = EcoFlow Fan On/Off 
@@ -78,6 +97,15 @@
 		}
 	}
 
+// = -------------------------------------------------	
+// = Adjusted $chargerhyst
+// = -------------------------------------------------
+	if ($runCharger){
+		if ($hwChargerUsage != 0 && $hwSolarReturn > -600) {
+			$chargerhyst = $chargerhyst / 2;
+		}
+	}
+	
 // = -------------------------------------------------	
 // = Batt% calibration
 // = -------------------------------------------------
@@ -170,7 +198,20 @@
 				if (isset($vars['charge_loss_calculation'])) {
 					$varsChanged = true;
 					unset($vars['charge_loss_calculation']);
+					
+					if (isset($vars['battery_empty'])) {
+						
+						if ($hwInvOneStatus == 'Off' || $hwInvTwoStatus == 'Off'){
+							switchHwSocket('invOne','On');
+							switchHwSocket('invTwo','On');
+						}
+					
+						unset($vars['battery_empty']);
+						$varsChanged = true;
+					}
+
 				}
+		
 			}
 		}
 
@@ -222,15 +263,11 @@
 // === Activate pause when battery is (almost) full > 26,85V
 		if (!$pauseCharging && $vars['pauseCharging'] !== true && $pvAvInputVoltage > ($batteryVolt + 1.8) && $hwChargerUsage <= $chargerWattsIdle) {
 			$pauseCharging = true;
-			//$vars['pauseCharging'] = true;
-			//$varsChanged = true;
 		}
 
 // === End pause when battery in under the defined % value
 		if ($pauseCharging && $vars['pauseCharging'] !== false && $batteryPct < $chargerPausePct) {
 			$pauseCharging = false;
-			//$vars['pauseCharging'] = false;
-			//$varsChanged = true;
 		}
 
 		if (($vars['pauseCharging'] ?? null) !== $pauseCharging) {

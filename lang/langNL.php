@@ -47,9 +47,7 @@ if ($debugLang == 'NL'){
 
 // === Print Inverter Status 
 	echo ' -/- EcoFlow Omvormers               -\-'.PHP_EOL;
-	//printRow('Omvormer 1 Baseload', $currentOneBaseload, 'Watt');
 	printRow('Omvormer 1 Output', $hwInvOneReturn, 'Watt');
-	//printRow('Omvormer 2 Baseload', $currentTwoBaseload, 'Watt');
 	printRow('Omvormer 2 Output', $hwInvTwoReturn, 'Watt');
 	printRow('Omvormer 1 Temperatuur', $invOneTemp, '°C');
 	printRow('Omvormer 2 Temperatuur', $invTwoTemp, '°C');
