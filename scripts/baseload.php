@@ -7,223 +7,263 @@
 //																 //
 
 // = -------------------------------------------------	
-// = Calculate new baseload (Peakshaving not active)
+// = Active inverter setup
 // = -------------------------------------------------
-	if ($hwP1Usage < $ecoflowMaxOutput
-	){
-		$newBaseload = round(min($ecoflowMaxOutput, max(0, ($hwP1Usage + $currentBaseload - $ecoflowOutputOffSet))) * 10);
-	
-	} elseif ($hwP1Usage >= $ecoflowMaxOutput
-	){
-		$newBaseload = ($ecoflowMaxOutput) * 10;
+	$activeInverters = [];
+
+	if ($usePiBattery) {
+		$activeInverters['eco1'] = $ecoflowOneMax;
+		$activeInverters['eco2'] = $ecoflowTwoMax;
+	}
+
+	if ($useMarstek) {
+		$activeInverters['marstek'] = $marstekMax;
+	}
+
+	$totalMaxOutput = array_sum($activeInverters) / 10;
+
+// = -------------------------------------------------	
+// = Calculate new baseload
+// = -------------------------------------------------
+	if ($hwP1Usage < $totalMaxOutput){
+		$newBaseloadRef = round(min($totalMaxOutput, max(0, ($hwP1Usage + $currentBaseload))) * 10);
+	} elseif ($hwP1Usage >= $totalMaxOutput){
+		$newBaseloadRef = round($totalMaxOutput * 10);
 	}
 	
-// = -------------------------------------------------	
-// = Idle injectie during dayTime  && $realUsage > $baseloadSplitter && !$isWinter
+	$newBaseload = floor(($newBaseloadRef) / 10) * 10;
+
 // = -------------------------------------------------
-	$idleInjectionVar = false;
+// = Idle: houd omvormers op minimaal na stoppen injectie
+// = -------------------------------------------------
+	$baseloadIdle 			= false;
+	$baseloadIdleOverride 	= false;
 	
-	if ($idleInjection == 'yes' && $realUsage > $idleInjectionThreshold && $newBaseload < ($ecoflowMinOutput * 10) && $hwChargerUsage == 0 && $isDaytime && $batteryPct > $batteryMinimum && $batteryPct < 99.99) {
-		$newBaseload = abs($idleInjectionWatts * 10);
-		$idleInjectionVar = true;
+// === If newBaseload drops to 0 but idle timer still active, keep minimal injection for x minutes
+	if ($newBaseload <= ($ecoflowMinOutput * 10) && $currentTimestamp < $baseloadIdleUntil) {
+		$newBaseload = ($ecoflowMinOutput * 10);
+		$baseloadIdle = true;
+		debugMsg('Idle actief: omvormers op minimaal vermogen (' . $ecoflowMinOutput . 'W) nog ' . ($baseloadIdleUntil - $currentTimestamp) . 's');
+
+// === Reset idle timer
+	} elseif ($baseloadIdleUntil > 0) {
+		$vars['baseload_idle_until'] = 0;
+		$baseloadIdleUntil = 0;
+		$varsChanged = true;
+
+// === Start idle timer
+	} elseif ($newBaseload <= ($ecoflowMinOutput * 10) && $currentTimestamp >= $baseloadIdleUntil && $oldBaseload > $ecoflowMinOutput) {
+		$vars['baseload_idle_until'] = $currentTimestamp + $baseloadIdleTimeout;
+		$baseloadIdleUntil = $vars['baseload_idle_until'];
+		$baseloadIdle = true;
+		$newBaseload = ($ecoflowMinOutput * 10);
+		$varsChanged = true;
+		debugMsg('Idle timer gestart: omvormers blijven ' . $baseloadIdleTimeout . 's op minimaal vermogen');
 	}
 
 // = -------------------------------------------------	
-// = Check if baseload needs to be updated
-// = ------------------------------------------------- 
-	$delta = abs($newBaseload - abs($hwInvReturn * 10));
-	
-	$updateNeeded = false;
-	$updateNeeded = ($delta > ($baseloadDelta * 10)) || ($delta > 500);
+// = Distribute baseload across active inverters
+// = -------------------------------------------------
+	$remainingLoad       = $newBaseload;
+	$activeCount         = count($activeInverters);
+	$invOneBaseload      = 0;
+	$invTwoBaseload      = 0;
+	$marstekBaseload     = 0;
+
+	if ($activeCount > 0) {
+		$targetPerInverter = round(($remainingLoad / $activeCount) / 10) * 10;
+
+		if ($usePiBattery) {
+			$invOneBaseload = min($targetPerInverter, $ecoflowOneMax);
+			$invTwoBaseload = min($targetPerInverter, $ecoflowTwoMax);
+		}
+
+		if ($useMarstek) {
+			$marstekBaseload = min($targetPerInverter, $marstekMax);
+		}
+
+		$distributed   = $invOneBaseload + $invTwoBaseload + $marstekBaseload;
+		$remainingLoad -= $distributed;
+
+// === Distribute remainder
+		if ($remainingLoad > 0 && $usePiBattery){
+			$add = min($remainingLoad, ($ecoflowOneMax - $invOneBaseload));
+			$invOneBaseload += $add;
+			$remainingLoad  -= $add;
+		}
+
+		if ($remainingLoad > 0 && $usePiBattery){
+			$add = min($remainingLoad, ($ecoflowTwoMax - $invTwoBaseload));
+			$invTwoBaseload += $add;
+			$remainingLoad  -= $add;
+		}
+
+		if ($remainingLoad > 0 && $useMarstek){
+			$add = min($remainingLoad, ($marstekMax - $marstekBaseload));
+			$marstekBaseload += $add;
+			$remainingLoad   -= $add;
+		}
+	}
 	
 // = -------------------------------------------------	
 // = Baseload failsaves
 // = -------------------------------------------------
-	$forceBaseloadOff = false;
+	$forceBaseloadNull = false;
 	
 // === Set baseload to null when charging
-	if ($hwChargerOneStatus == 'On' || $hwChargerTwoStatus == 'On' || $hwChargerThreeStatus == 'On' || $hwChargerFourStatus == 'On') {
-		$forceBaseloadOff = true;
-		$newBaseload = 0;
-		debugMsg('$forceBaseloadOff (Battery Charging)');
-	}
-
-// === Set baseload to null when schedule == 0
-	if ($schedule == 0) {
-		$forceBaseloadOff = true;
-		$newBaseload = 0;
-		debugMsg('$forceBaseloadOff (Not Scheduled)');
-	}
-	
-// === Set baseload to null if inverters have to inject lower then then can handle
-	if ($newBaseload > 0 && $newBaseload < ($ecoflowMinOutput * 10) && $idleInjectionVar == false) {
-		$forceBaseloadOff = true;
-		$newBaseload = 0;
-		debugMsg('$forceBaseloadOff (Inverter Minimum)');
+	if ($hwChargerOneStatus == 'On' || $hwChargerTwoStatus == 'On' || $hwChargerThreeStatus == 'On' || $hwChargerFourStatus == 'On' || $hwMarstekUsage > 0) {
+		$forceBaseloadNull 	  = true;
+		$baseloadIdleOverride = true;
+		
+		if ($debug == 'yes' && $isManualRun){
+			debugMsg('Ontladen geblokkeerd: Batterij is aan het opladen');
+		}
 	}
 	
 // ==== Set baseload to null if inverters are getting hot	
-	if ($invOneTemp >= $ecoflowMaxInvTemp) {
-		$forceBaseloadOff = true;
-		$newBaseload = 0;
-		debugMsg('$forceBaseloadOff (Inv One HOT)');
-	}
-
-	if ($invTwoTemp >= $ecoflowMaxInvTemp) {
-		$forceBaseloadOff = true;
-		$newBaseload = 0;
-		debugMsg('$forceBaseloadOff (Inv Two HOT)');
+	if ($invOneTemp >= $ecoflowMaxInvTemp || $invTwoTemp >= $ecoflowMaxInvTemp) {
+		$forceBaseloadNull 	  = true;
+		$baseloadIdleOverride = true;
+		
+		if ($debug == 'yes' && $isManualRun){
+			debugMsg('Ontladen geblokkeerd: Omvormers zijn te warm');
+		}
 	}
 	
-// === Set baseload to null when battery is empty #failsave if SOC is calculate wrong
-	if ($pvAvInputVoltage < ($batteryVolt - 3.9) && $hwInvReturn != 0) {
-		$forceBaseloadOff = true;
-		$newBaseload = 0;
-		debugMsg('$forceBaseloadOff battery voltage low while injecting');
-		
-	} elseif ($pvAvInputVoltage > 0 && $pvAvInputVoltage < ($batteryVolt - 2.9) && $hwInvReturn == 0) {
-		$forceBaseloadOff = true;
-		$newBaseload = 0;
-		debugMsg('$forceBaseloadOff battery voltage low');
-	}
-
-	if ($batteryPct <= $batteryMinimum) {
-		$forceBaseloadOff = true;
-		$newBaseload = 0;
-		
-		if (!isset($vars['battery_empty']) && $isWinter && $winterPause == 'yes') {
-			
-			if ($hwInvOneStatus == 'On' || $hwInvTwoStatus == 'On'){
-				switchHwSocket('invOne','Off');
-				switchHwSocket('invTwo','Off');
-			}
-		
-			$vars['battery_empty'] = true;
-			$varsChanged = true;
+// === Set baseload to null when battery is empty
+	if(!$usePiBattery){
+		if ($debug == 'yes' && $isManualRun){
+			debugMsg('piBattery ontladen geblokkeerd: Batterij is leeg');
 		}
 		
-		debugMsg('$forceBaseloadOff battery pct low');
+		if (!isset($vars['piBattery_empty'])) {	
+			$vars['piBattery_empty'] = true;
+			$varsChanged = true;
+		}
+			
+	}
+
+	if(!$useMarstek){
+		if ($debug == 'yes' && $isManualRun){
+			debugMsg('Marstek ontladen geblokkeerd: Marstek is leeg');
+		}
+		
+		if (!isset($vars['marstek_empty'])) {	
+			$vars['marstek_empty'] = true;
+			$varsChanged = true;
+		}
+			
+	}
+
+	if(!$usePiBattery && !$useMarstek){
+		$forceBaseloadNull 	  = true;
+		$baseloadIdleOverride = true;
+		
+		if ($debug == 'yes' && $isManualRun){
+			debugMsg('Ontladen geblokkeerd: Batterijen zijn leeg');
+		}
 	}
 	
-// Set Baseload null when inverter status is OFF
-	if ($hwInvOneStatus == 'Off' || $hwInvTwoStatus == 'Off'){
-		$forceBaseloadOff = true;
-		$newBaseload = 0;
-		debugMsg('$forceBaseloadOff (Inverters aren,t online)');
+	if(!$usePiBattery && $batteryPct > $batteryEmptyRecoveryPct && isset($vars['piBattery_empty'])){
+		unset($vars['piBattery_empty']);
+		$varsChanged = true;
+	}
+	
+	if(!$useMarstek && $marstekBatSoc > $batteryEmptyRecoveryPct && isset($vars['marstek_empty'])){
+		unset($vars['marstek_empty']);
+		$varsChanged = true;
+	}
+
+// === Set baseload to null when battery calibration is still running
+	if (isset($vars['charge_loss_calculation']) || isset($vars['battery_awaitingCalibration']) || $batteryPct > 100.00) {
+		$forceBaseloadNull 	  = true;
+		$baseloadIdleOverride = true;
+		
+		if ($debug == 'yes' && $isManualRun){
+		debugMsg('Ontladen geblokkeerd: Batterij calibratie moet nog worden uitgevoerd');
+		}
 	}
 		
-// === Set baseload to null when battery calibration is still running
-	if (isset($vars['charge_loss_calculation']) or $batteryPct > 100.00) {
-		$forceBaseloadOff = true;
+// === Set baseload to null when it's Winter break
+	if ($isWinter && $currentTime >= $sunriseLate && $currentTime <= $sunsetEarly) {
+		$forceBaseloadNull 	  = true;
+		$baseloadIdleOverride = true;
+		
+		debugMsg("Ontladen geblokkeerd tussen {$sunriseLate} & {$sunsetEarly}");
+	}
+
+// === Set baseload to null if inverters have to inject lower then then can handle
+	if ($newBaseload >= 0 && $newBaseload <= ($ecoflowMinOutput * 10) && $hwChargerUsage == 0 && $baseloadIdle == false && $currentTimestamp >= $baseloadIdleUntil) {
+		$forceBaseloadNull = true;
+		debugMsg('Ontladen geblokkeerd: Vraag is minder dan minimale ontlading');
+	}
+
+// Set Baseload null when inverters aren't online
+	if ($hwInvOneStatus == 'Off' || $hwInvTwoStatus == 'Off' || $hwMarstekStatus == 'Off'){
+		$forceBaseloadNull 	  = true;
+		$baseloadIdleOverride = true;
+		
+		if ($debug == 'yes' && $isManualRun){
+			debugMsg('Ontladen geblokkeerd: Omvormers sockets zijn uitgeschakeld');
+		}
+	}
+	
+	if ($forceBaseloadNull == true && $baseloadIdleOverride == true) {
 		$newBaseload = 0;
-		debugMsg('$forceBaseloadOff (Battery calibration)');
+		$invOneBaseload  = 0;
+		$invTwoBaseload  = 0;
+		$marstekBaseload = 0;
 	}
 	
 // = -------------------------------------------------	
-// = Set baseload to null if forceBaseloadOff
+// = Check if baseload needs to be updated
 // = -------------------------------------------------
-
-// ==== If forceBaseloadOff then set baseload to NULL
-	if ($forceBaseloadOff == true && $currentBaseload > 0 && !$isManualRun) {	
-
-		$ecoflow->setDeviceFunction($ecoflowOneSerialNumber, 'WN511_SET_PERMANENT_WATTS_PACK', ['permanent_watts' => 0]);
-		sleep(5);
-		$ecoflow->setDeviceFunction($ecoflowTwoSerialNumber, 'WN511_SET_PERMANENT_WATTS_PACK', ['permanent_watts' => 0]);
-			
-		if (($newBaseload / 10) != $oldBaseload) {
-			$varsChanged = true;
-			$vars['oldBaseload'] = ($newBaseload / 10);
+	$updateNeeded = false;
+	
+	$delta = abs($newBaseload - abs($hwInvReturn * 10));
+	
+		if($hwP1Usage > 0){
+		$updateNeeded = ($delta > ($baseloadPosDelta * 10));
+		} elseif($hwP1Usage <= 0){
+		$updateNeeded = ($delta > ($baseloadNegDelta * 10));
 		}
-		
-	}
-
+	
 // = -------------------------------------------------	
 // = Update baseload
 // = -------------------------------------------------
+	if (!$isManualRun && $forceBaseloadNull == false && $updateNeeded == true) {
 
-// === If updateNeeded then set new baseload  && !$isManualRun	
-	if ($updateNeeded && $forceBaseloadOff == false) {		
-		$actualBaseloadDelta = abs(($newBaseload / 10) - $oldBaseload);
-
-// === Determine is baseload update needs to be delayed
-		$pendingBaseloadOverride = false;
-		
-	if ($pendingBaseload == true) {
-		$varsChanged = true;
-		$vars['baseload_pending_switch'] = false;
-		$pendingBaseloadOverride = true;
-		debugMsg('Op/Afschalen baseload was gepauzeerd en nu toegestaan, delta: '.$actualBaseloadDelta.' Watt');
-		
-	} elseif ($pendingBaseload == false) {
-		
-		if (($newBaseload / 10) <= $oldBaseload) {
-			$pendingBaseloadOverride = true;
-			$varsChanged = true;
-			$vars['baseload_pending_switch'] = false;
-			debugMsg('Afschalen baseload toegestaan, delta: '.$actualBaseloadDelta.' Watt');
-			
-		} elseif (($newBaseload / 10) > $oldBaseload) {
-			
-			if ($actualBaseloadDelta > $baseloadSplitter && $hwInvReturn == 0) {
-				$varsChanged = true;
-				$vars['baseload_pending_switch'] = true;
-				debugMsg('Opschalen baseload voor 1 run gepauzeerd, delta: '.$actualBaseloadDelta.' Watt');
-				return;
-				
-			} elseif ($actualBaseloadDelta > $baseloadSplitter && $hwInvReturn != 0) {
-				$pendingBaseloadOverride = true;
-				$varsChanged = true;
-				$vars['baseload_pending_switch'] = false;
-				debugMsg('Opschalen baseload toegestaan, delta: '.$actualBaseloadDelta.' Watt & $invInjection '.$invInjection.'');			
-			
-				
-			} elseif ($actualBaseloadDelta <= $baseloadSplitter) {
-				$pendingBaseloadOverride = true;
-				$varsChanged = true;
-				$vars['baseload_pending_switch'] = false;
-				debugMsg('Afschalen baseload toegestaan, delta: '.$actualBaseloadDelta.' Watt & $invInjection '.$invInjection.'');			
-			}
-		}
-	}
-}
-
-
-	if ($updateNeeded && !$isManualRun && $forceBaseloadOff == false && $pendingBaseloadOverride == true) {			
-// === Determine target injection baseload  && !$isManualRun
-		$invBaseload = ($idleInjectionVar || $newBaseload >= ($baseloadSplitter * 10) || $realUsage >= $baseloadSplitter)
-			? ($newBaseload / 2)
-			: $newBaseload;
-
-// === Determine target inverter
-		$useBoth = $idleInjectionVar || !($newBaseload < ($baseloadSplitter * 10) && $realUsage < $baseloadSplitter);
-
-// === Only inverter ONE
-		$ecoflow->setDeviceFunction(
-			$ecoflowOneSerialNumber,
-			'WN511_SET_PERMANENT_WATTS_PACK',
-			['permanent_watts' => $invBaseload]
-		);
-
-// === Second inverter if needed
-		sleep(5);
-		if ($useBoth) {
-			$ecoflow->setDeviceFunction(
-				$ecoflowTwoSerialNumber,
-				'WN511_SET_PERMANENT_WATTS_PACK',
-				['permanent_watts' => $invBaseload]
-			);
-		} elseif ($hwInvTwoReturn != 0) {
-			$ecoflow->setDeviceFunction(
-				$ecoflowTwoSerialNumber,
-				'WN511_SET_PERMANENT_WATTS_PACK',
-				['permanent_watts' => 0]
-			);
-		}
-
+		$ecoflow->setDeviceFunction($ecoflowOneSerialNumber,'WN511_SET_PERMANENT_WATTS_PACK',['permanent_watts' => $invOneBaseload]);
+		sleep(2);
+		$ecoflow->setDeviceFunction($ecoflowTwoSerialNumber,'WN511_SET_PERMANENT_WATTS_PACK',['permanent_watts' => $invTwoBaseload]);
+		setMarstekReturn(($marstekBaseload / 10));
+	
+// === Set new baseload variable
 		if (($newBaseload / 10) != $oldBaseload) {
 			$varsChanged = true;
 			$vars['oldBaseload'] = ($newBaseload / 10);
+			if (($newBaseload / 10) == 0) {
+			$vars['invInjection'] = false;
+			} else {
+			$vars['invInjection'] = true;	
+			}
+		}
+
+
+// === Force baseload null #failsave
+	} elseif (!$isManualRun && $forceBaseloadNull == true && $baseloadIdle == false && $hwInvReturn < 0) {	
+		$ecoflow->setDeviceFunction($ecoflowOneSerialNumber, 'WN511_SET_PERMANENT_WATTS_PACK', ['permanent_watts' => 0]);
+		sleep(2);
+		$ecoflow->setDeviceFunction($ecoflowTwoSerialNumber, 'WN511_SET_PERMANENT_WATTS_PACK', ['permanent_watts' => 0]);
+		setMarstekReturn(0);
+		
+// === Reset baseload variable				
+		if ($oldBaseload != 0) {
+			$varsChanged = true;
+			$vars['oldBaseload'] = 0;
+			$vars['invInjection'] = false;
+			$vars['marstek_force_mode'] = '';
 		}
 	}
-	
+
 ?>

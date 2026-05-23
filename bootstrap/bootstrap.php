@@ -10,15 +10,19 @@
 	require_once __DIR__ . '/../config/config.php';
 
 // = 2. API Class
-	require_once __DIR__ . '/../includes/ecoflow_api_class.php';
+	require_once __DIR__ . '/../class/ecoflow_api_class.php';
 
-// = 3. Functions
+// = 3. Marstek ModBus Class
+	require_once __DIR__ . '/../class/marstek_modbus_class.php';
+	sleep(1);
+	
+// = 4. Functions
 	require_once __DIR__ . '/../includes/functions.php';
 
-// = 4. Variables
+// = 5. Variables
 	require_once __DIR__ . '/../includes/variables.php';
 
-// = 5. Helpers
+// = 6. Helpers
 	require_once __DIR__ . '/../includes/helpers.php';
 
 ?>

@@ -5,300 +5,213 @@
 //                           Helpers                             //
 // **************************************************************//
 //
-	
-// -------------------------------------------------
-// Determine winter/summertime schedule
-// -------------------------------------------------
-	if ($runBaseload || $isManualRun){
-		$scheduleAllowed = false;
-		if ($winterPause == 'yes' && $isWinter && !$isDaytime && !isset($vars['battery_empty'])) {
-		$scheduleAllowed = true;
-		
-		} elseif ($winterPause == 'yes' && $isWinter && $isDaytime && !isset($vars['battery_empty']) && $realUsage >= $idleInjectionThreshold) {
-		$scheduleAllowed = true;
-		
-		} elseif ($winterPause == 'yes' && !$isWinter) {
-		$scheduleAllowed = true;
-		
-		} elseif ($winterPause == 'no') {
-		$scheduleAllowed = true;
-		}
-	}
-	
-// -------------------------------------------------
-// Schedule
-// -------------------------------------------------
-	if ($runBaseload || $isManualRun){
-		if ($runInfinity == 'yes' && $scheduleAllowed == true) {
-			$schedule = 1;
-			
-		} elseif ($runInfinity == 'no') {
-			
-			if ($invStartTime < $invEndTime) {
-				if ($currentTime >= $invStartTime && $currentTime <= $invEndTime) {
-					$schedule = 1;
-				} else {
-					$schedule = 0;
-				}
-				
-			} else {
-				
-				if ($currentTime >= $invStartTime || $currentTime <= $invEndTime) {
-					$schedule = 1;
-				} else {
-					$schedule = 0;
-				}
-			}
 
-		} else {
-			$schedule = 0;
-		}
-	}
-	
-// = -------------------------------------------------	
-// = Fase powerusage protection
 // = -------------------------------------------------
-	if ($runCharger || $isManualRun){
-		if ($hwP1Fase >= $maxFaseWatts){
-			$faseProtect = 1;
-		} else {
-			if ($hwP1Fase <= $maxFaseWatts){
-			$faseProtect = 0;
-			} else {
-			$faseProtect = 0;
-			}
+// = API / Modbus beschikbaarheid check
+// = -------------------------------------------------
+/*
+	if (!$isManualRun) {
+			$EcoflowOnline = false;
+			$MarstekOnline = false;
+		if (!isset($invOne['data']) || !isset($invTwo['data'])) {
+			debugMsg('EcoFlow API niet beschikbaar, systeem geblokkeerd');
+			//switchHwSocket('invOne', 'Off');
+			//switchHwSocket('invTwo', 'Off');
+			//switchHwSocket('one', 'Off');
+			//switchHwSocket('two', 'Off');
+			//switchHwSocket('three', 'Off');
+			//switchHwSocket('four', 'Off');
+			//unlink($lockFile);
+			//exit;
+			$EcoflowOnline = true;
+		}
+
+		if (!$marstekData['online']) {
+			debugMsg('Marstek Modbus niet beschikbaar, systeem geblokkeerd');
+			//switchHwSocket('four', 'Off');
+			//switchHwSocket('three', 'Off');
+			//switchHwSocket('two', 'Off');
+			//switchHwSocket('one', 'Off');
+			//unlink($lockFile);
+			//exit;
+			$MarstekOnline = true;
 		}
 	}
+*/	
 
-// -------------------------------------------------
-// Reset $vars['battery_empty']
-// -------------------------------------------------
-	if ($runBaseload){
-		if ($winterPause == 'yes' && $isNightTime && $batteryPct >= 60 && isset($vars['battery_empty'])) {
-			
-			if ($hwInvOneStatus == 'Off' || $hwInvTwoStatus == 'Off'){
-				switchHwSocket('invOne','On');
-				switchHwSocket('invTwo','On');
-			}
-						
-			unset($vars['battery_empty']);
+
+// = -------------------------------------------------
+// = Fase Protection
+// = -------------------------------------------------
+	if ($runCharger && !$isManualRun){
+		if ($hwP1Fase >= $maxFaseWatts && !$faseProtect && $hwChargerUsage > 0 && !$isManualRun) {
+			$vars['faseProtect'] = true;
 			$varsChanged = true;
-		}
-	}
-	
-// = -------------------------------------------------	
-// = EcoFlow Fan On/Off 
-// = -------------------------------------------------
-	if ($runCharger){
-		if ($hwInvFanStatus == 'Off' && $invTemp >= 35){
-			switchHwSocket('fan','On');
-		} elseif ($hwInvFanStatus == 'On' && $invTemp < 30){
-			switchHwSocket('fan','Off');
-		}
-	}
 
-// = -------------------------------------------------	
-// = Adjusted $chargerhyst
-// = -------------------------------------------------
-	if ($runCharger){
-		if ($hwChargerUsage != 0 && $hwSolarReturn > -600) {
-			$chargerhyst = $chargerhyst / 2;
-		}
-	}
-	
-// = -------------------------------------------------	
-// = Batt% calibration
-// = -------------------------------------------------
-	if ($runCharger){
-		if ($pvAvInputVoltage > ($batteryVolt + 1.7)
-			&& $hwChargerOneStatus == 'Off' && $hwChargerTwoStatus == 'Off' && $hwChargerThreeStatus == 'Off' && $hwChargerFourStatus == 'Off'
-			&& (!isset($vars['battery_calibrated']) || $vars['battery_calibrated'] !== true)
-			) {
-
-			$chargeStart  		= round($hwChargersTotalInput, 7);
-			$chargeCalibrated	= round($hwChargersTotalInput - $batteryCapacitykWh, 7);
-			$dischargeStart 	= round($hwInvTotal, 7);
-
-// = Start Charge Loss Calculation
-		if (!isset($vars['charge_loss_calculation']) || $vars['charge_loss_calculation'] !== true){
-			$vars['charging_loss'] = [
-				'chargeStart' => $chargeStart,
-				'dischargeStart' => $dischargeStart
-			];
-			
-			$vars['charge_loss_calculation'] = true;
-			$varsChanged = true;			
+			if ($hwChargerOneStatus == 'On' || $hwChargerTwoStatus == 'On' || $hwChargerThreeStatus == 'On' || $hwChargerFourStatus == 'On') {
+				switchHwSocket('four', 'Off'); sleep(1);
+				switchHwSocket('three', 'Off'); sleep(1);
+				switchHwSocket('two', 'Off'); sleep(1);
+				switchHwSocket('one', 'Off');
+			}
 			return;
-			
-		} elseif ($vars['charge_loss_calculation'] === true) {
-		
-			$chargedkWh    = $brutoCharged;
-			$dischargedkWh = $brutoDischarged;
-					
-			if ($chargedkWh > 0 && $dischargedkWh > 0 && $dischargedkWh <= $chargedkWh) {
-				$sessionLoss = 1 - ($dischargedkWh / $chargedkWh);
 
-// === Log session only if new
-			$sessionFile = $piBatteryPath . 'data/charge_sessions.json';
-			$newSession = [
-			'charged'     		 => round($chargedkWh, 7),
-			'discharged'     	 => round($dischargedkWh, 7),
-			'loss'        		 => round($sessionLoss, 7)
-			];
-
-			$sessions = [];
-			$skipSession = false;
-
-			if (file_exists($sessionFile)) {
-				$sessions = json_decode(file_get_contents($sessionFile), true);
-				if (!is_array($sessions)) $sessions = [];
-
-// === Check id session is identical to the latest session
-				$lastSession = end($sessions);
-				if (
-					isset($lastSession['charged'], $lastSession['discharged']) &&
-					$newSession['charged'] === $lastSession['charged'] &&
-					$newSession['discharged'] === $lastSession['discharged']
-					) {
-					$skipSession = true;
-					}
-				}
-
-				if (!$skipSession) {
-					$sessions[] = $newSession;
-
-// === Remove oldest session				
-			if (count($sessions) > $chargeSessions) {
-			array_shift($sessions);
-			}	
-			writeJsonLocked($sessionFile, $sessions);
-			}
-
-// === Calculate session average
-			$losses = [];
-			foreach ($sessions as $s) {
-				if (isset($s['charged'], $s['discharged']) &&
-					$s['charged'] > 0 &&
-					$s['discharged'] > 0 &&
-					$s['charged'] >= $s['discharged']
-					) {
-					$loss = 1 - ($s['discharged'] / $s['charged']);
-					$losses[] = $loss;
-				}
-			}
-
-			if (count($losses) >= $chargeSessions) {
-				$chargerLoss = array_sum($losses) / count($losses);
-				if ($chargerLoss != $vars['charger_loss_dynamic']) {
-				$varsChanged = true;
-				$vars['charger_loss_dynamic'] = $chargerLoss;
-				}
-			}
-			
-				if (isset($vars['charge_loss_calculation'])) {
-					$varsChanged = true;
-					unset($vars['charge_loss_calculation']);
-					
-					if (isset($vars['battery_empty'])) {
-						
-						if ($hwInvOneStatus == 'Off' || $hwInvTwoStatus == 'Off'){
-							switchHwSocket('invOne','On');
-							switchHwSocket('invTwo','On');
-						}
-					
-						unset($vars['battery_empty']);
-						$varsChanged = true;
-					}
-
-				}
-		
-			}
-		}
-
-// = End Charge Loss calculation
-			$varsChanged = true;
-			$vars['charge_session'] = [
-				'chargeStart'     => $chargeStart,
-				'chargeCalibrated'=> $chargeCalibrated,
-				'dischargeStart'  => $dischargeStart
-			];
-				
-			$vars['battery_calibrated'] = true;
-		}
-
-		if (isset($vars['battery_calibrated']) && $batteryPct < $chargerPausePct) {
-			unset($vars['battery_calibrated']);
+		} elseif ($hwP1Fase < $maxFaseWatts && $faseProtect && $hwChargerUsage == 0 && !$isManualRun) {
+			$vars['faseProtect'] = false;
 			$varsChanged = true;
 		}
 	}
 	
+// = -------------------------------------------------
+// = Battery voltage low, keep BMS awake
+// = -------------------------------------------------
+	if ($runCharger && !$isManualRun && $pvAvInputVoltage <= $batteryVoltMin && $hwChargersUsage == 0 && $hwInvsReturn == 0 && !$bmsWakeActive && !$isManualRun) {
+
+		if ($hwChargerTwoStatus == 'Off') {
+			switchHwSocket('two', 'On');
+			sleep(5);
+		}
+
+		$vars['bmsWakeActive'] = true;
+		$vars['battery_bmsWake_time'] = time();
+		$varsChanged = true;
+		return;
+
+	} elseif ($bmsWakeActive && $hoursSince_Wake_time >= 0.5 && !$isManualRun) {
+
+		if ($hwChargerTwoStatus == 'On') {
+			switchHwSocket('two', 'Off');
+			sleep(5);
+		}
+
+		$vars['bmsWakeActive'] = false;
+		unset($vars['battery_bmsWake_time']);
+		$varsChanged = true;
+		return;
+	}
+	
 // = -------------------------------------------------	
-// = Estimated charge/discharge time
+// = Estimated charge time  || $runCharger
 // = -------------------------------------------------
 
-// === ChargeTime till 100%
-		if ($hwChargerUsage > $chargerWattsIdle && $batteryPct < 100) {
+// === piBattery ChargeTime till 100%
+		if ($hwChargersUsage > 0 && $batteryPct < 100) {
 			$currentWh = ($batteryPct / 100) * $batteryCapacityWh;
-			
+				
 			$neededWh = $batteryCapacityWh - $currentWh;
 			$neededWhAdjusted = $neededWh / (1 - $chargerLoss);
-			$chargeTime = $neededWhAdjusted / $hwChargerUsage;
+			$chargeTime = $neededWhAdjusted / $hwChargersUsage;
 			$realChargeTime = convertTime($chargeTime);
-		}
-
-// === DischargeTime till minimum-SOC
-		if ($hwInvReturn != 0 && $batteryPct > $batteryMinimum) {
-			$currentWh = ($batteryPct / 100) * $batteryCapacityWh;
 			
+		}
+		
+// === Marstek ChargeTime till 100%
+		if ($hwMarstekUsage > 0 && $marstekBatSoc < 100) {
+			$currentMarstekWh = ($marstekBatSoc / 100) * $marstekCapacityWh;
+				
+			$neededMarstekWh = $marstekCapacityWh - $currentMarstekWh;
+			$neededMarstekWhAdjusted = $neededMarstekWh;
+			$chargeMarstekTime = $neededMarstekWhAdjusted / $hwMarstekUsage;
+			$realMarstekChargeTime = convertTime($chargeMarstekTime);
+			
+		}
+	
+// = -------------------------------------------------	
+// = Estimated discharge time  || $runCharger
+// = -------------------------------------------------
+	
+// === piBattery DischargeTime till minimum-SOC
+		if ($hwInvsReturn < 0 && $batteryPct > $batteryMinimum) {
+			$currentWh = ($batteryPct / 100) * $batteryCapacityWh;
+				
 			$minWh = ($batteryMinimum / 100) * $batteryCapacityWh;
 			$availableWh = $currentWh - $minWh;
-			$dischargeTime = $availableWh / abs($hwInvReturn);
+			$dischargeTime = $availableWh / abs($hwInvsReturn);
 			$realDischargeTime = convertTime($dischargeTime);
 		}
-	
+		
+// === Marstek DischargeTime till minimum-SOC
+		if ($hwMarstekReturn < 0) {
+			$currentMarstekWh = ($marstekBatSoc / 100) * $marstekCapacityWh;
+				
+			$minMarstekWh = ($marstekMinimum / 100) * $marstekCapacityWh;
+			$availableMarstekWh = $currentMarstekWh - $minMarstekWh;
+			$dischargeMarstekTime = $availableMarstekWh / abs($hwMarstekReturn);
+			$realMarstekDischargeTime = convertTime($dischargeMarstekTime);
+		}
+
 // = -------------------------------------------------	
-// = Pause charging until desired Batt%
+// = PushUpdate to Domoticz
 // = -------------------------------------------------
-	if ($runCharger){
-// === Activate pause when battery is (almost) full > 26,85V
-		if (!$pauseCharging && $vars['pauseCharging'] !== true && $pvAvInputVoltage > ($batteryVolt + 1.8) && $hwChargerUsage <= $chargerWattsIdle) {
-			$pauseCharging = true;
+	if ($runBaseload && !$isManualRun){
+		
+		if (UpdateDomoticzDeviceIfChanged($batterySOCIDX, ''.$batteryPct.'') == 'OK') usleep(100000);
+
+		if (UpdateDomoticzDeviceIfChanged($marstekSOCIDX, ''.$marstekBatSoc.'') == 'OK') usleep(100000);
+
+		if (UpdateDomoticzDeviceIfChanged($marstekAvailIDX, ''.$marstekAvailable.'') == 'OK') usleep(100000);
+		
+		if (UpdateDomoticzDeviceIfChanged($batteryAvailIDX, ''.$batteryAvailable.'') == 'OK') usleep(100000);
+
+		if (UpdateDomoticzDeviceIfChanged($batteryVoltageIDX, ''.$pvAvInputVoltage.'') == 'OK') usleep(100000);
+
+		if (UpdateDomoticzDeviceIfChanged($inputCounterIDX, ''.$hwChargersUsage.'') == 'OK') usleep(100000);
+
+		if (UpdateDomoticzDeviceIfChanged($outputCounterIDX, ''.$hwInvsReturn.'') == 'OK') usleep(100000);
+
+		if (UpdateDomoticzDeviceIfChanged($marstekInputCounterIDX, ''.$hwMarstekUsage.'') == 'OK') usleep(100000);
+
+		if (UpdateDomoticzDeviceIfChanged($marstekOutputCounterIDX, ''.$hwMarstekReturn.'') == 'OK') usleep(100000);
+
+// = -------------------------------------------------	
+
+		if ($hwChargersUsage > 10 && $batteryPct < 100) {
+			if (UpdateDomoticzDeviceIfChanged($batteryChargeTimeIDX, ''.$realChargeTime.'') == 'OK') usleep(100000);
+		} else {
+			if (UpdateDomoticzDeviceIfChanged($batteryChargeTimeIDX, '00:00') == 'OK') usleep(100000);
 		}
 
-// === End pause when battery in under the defined % value
-		if ($pauseCharging && $vars['pauseCharging'] !== false && $batteryPct < $chargerPausePct) {
-			$pauseCharging = false;
+// = -------------------------------------------------	
+
+		if ($hwInvsReturn < 0 && $batteryPct > $batteryMinimum) {
+			if (UpdateDomoticzDeviceIfChanged($batteryDischargeTimeIDX, ''.$realDischargeTime.'') == 'OK') usleep(100000);
+		} else {
+			if (UpdateDomoticzDeviceIfChanged($batteryDischargeTimeIDX, '00:00') == 'OK') usleep(100000);
 		}
 
-		if (($vars['pauseCharging'] ?? null) !== $pauseCharging) {
-			$vars['pauseCharging'] = $pauseCharging;
-			$varsChanged = true;
+// = -------------------------------------------------	
+
+		if ($hwMarstekUsage > 10 && $marstekBatSoc < 100) {
+			if (UpdateDomoticzDeviceIfChanged($marstekChargeTimeIDX, ''.$realMarstekChargeTime.'') == 'OK') usleep(100000);
+		} else {
+			if (UpdateDomoticzDeviceIfChanged($marstekChargeTimeIDX, '00:00') == 'OK') usleep(100000);
 		}
 
-		$varsState = [];
-		$varsState['pauseCharging'] = $vars['pauseCharging'] ?? false;
+// = -------------------------------------------------	
+
+		if ($hwMarstekReturn < 0 && $marstekBatSoc > $marstekMinimum) {
+			if (UpdateDomoticzDeviceIfChanged($marstekDischargeTimeIDX, ''.$realMarstekDischargeTime.'') == 'OK') usleep(100000);
+		} else {
+			if (UpdateDomoticzDeviceIfChanged($marstekDischargeTimeIDX, '00:00') == 'OK') usleep(100000);
+		}
+
+// = -------------------------------------------------	
+		
+		$chargerLossDomo = ($chargerLoss * 100);
+		if (UpdateDomoticzDeviceIfChanged($batteryRTEIDX, ''.$chargerRTE.'') == 'OK') usleep(100000);
+
+// = -------------------------------------------------	
+		
+		if (UpdateDomoticzDeviceIfChanged($marstekRTEIDX, ''.$marstekRTE.'') == 'OK') usleep(100000);
+		
 	}
-	
+
 // = -------------------------------------------------	
-// = Determine injection
+// = Push data to Domoticz
 // = -------------------------------------------------
-	if ($runBaseload){
-		if ($hwInvReturn != 0 && $invInjection === false && $idleInjection == 'no') {
-			$varsChanged = true;		
-			$vars['invInjection'] = true;
-			
-		} elseif ($hwInvReturn >= $idleInjectionWatts && $hwInvReturn <= 0 && $invInjection === true && $idleInjection == 'yes') {
-			$varsChanged = true;		
-			$vars['invInjection'] = false;
-			
-		} elseif ($hwInvReturn < $idleInjectionWatts && $invInjection === false && $idleInjection == 'yes') {
-			$varsChanged = true;		
-			$vars['invInjection'] = true;
-			
-		} elseif ($hwInvReturn == 0 && $invInjection === true) {
-			$varsChanged = true;		
-			$vars['invInjection'] = false;
-		}
+
+	if ($runCharger && !$isManualRun){	
+		sendBatteryStatusToDomoticz();
 	}
 
 ?>

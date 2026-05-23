@@ -40,11 +40,7 @@
 		$result = curl_exec($ch);
 
 		if (curl_errno($ch)) {
-			if ($debugLang == 'NL'){
 			debugMsg('Kan geen gegevens ophalen van Homewizard: '.$ip.'!');
-			} else {
-			debugMsg('Can not get data Homewizard: '.$ip.'!');	
-			}
 			curl_close($ch);
 			return false;
 		} else {
@@ -53,6 +49,45 @@
 			curl_close($ch);
 			return $hwDataValue;
 		}
+	}
+
+// = -------------------------------------------------
+// = Function GET HomeWizard data + status (cached)
+// = -------------------------------------------------
+	function getHwAll($ip) {
+		static $cache = [];
+		if (isset($cache[$ip])) return $cache[$ip];
+
+		$result = ['power' => 0, 'status' => 'Off', 'total_import' => 0, 'total_export' => 0];
+
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 3);
+
+		curl_setopt($ch, CURLOPT_URL, "http://".$ip."/api/v1/data");
+		$raw = curl_exec($ch);
+		if (!curl_errno($ch)) {
+			$decoded = json_decode($raw);
+			$result['power']        = round($decoded->active_power_w);
+			$result['total_import'] = round($decoded->total_power_import_kwh, 3);
+			$result['total_export'] = round($decoded->total_power_export_kwh, 3);
+		} else {
+			debugMsg('Kan geen gegevens ophalen van Homewizard: '.$ip.'!');
+		}
+
+		curl_setopt($ch, CURLOPT_URL, "http://".$ip."/api/v1/state");
+		$raw = curl_exec($ch);
+		if (!curl_errno($ch)) {
+			$decoded = json_decode($raw);
+			$result['status'] = ($decoded->power_on == 1 ? 'On' : 'Off');
+		} else {
+			debugMsg('Kan geen status ophalen van Homewizard: '.$ip.'!');
+		}
+
+		curl_close($ch);
+		$cache[$ip] = $result;
+		return $result;
 	}
 
 // = -------------------------------------------------
@@ -65,12 +100,8 @@
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$result = curl_exec($ch);
 
-		if (curl_errno($ch)) { 
-			if ($debugLang == 'NL'){
+		if (curl_errno($ch)) {
 			debugMsg('Kan geen gegevens ophalen van Homewizard: '.$ip.'!');
-			} else {
-			debugMsg('Can not get data Homewizard: '.$ip.'!');	
-			}
 			curl_close($ch);
 			return false;
 		} else {
@@ -110,18 +141,10 @@
 			case 'invTwo':
 				$ip = $hwEcoFlowTwoIP;
 				break;
-			case 'fan':
-				$ip = $hwEcoFlowFanIP;
-				break;
 			default:
 			
-			if ($debugLang == 'NL'){
 			debugMsg('Kan geen gegevens ophalen van Homewizard: '.$ip.'!');
 			debugMsg('Onbekend energySocket: '.$energySocket.'!');
-			} else {
-			debugMsg('Can not get data Homewizard: '.$ip.'!');
-			debugMsg('Unknown energySocket: '.$energySocket.'!');
-			}
 				return;
 		}
 
@@ -161,12 +184,8 @@
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$result = curl_exec($ch);
 
-		if (curl_errno($ch)) { 
-			if ($debugLang == 'NL'){
+		if (curl_errno($ch)) {
 			debugMsg('Kan geen gegevens ophalen van Homewizard: '.$ip.'!');
-			} else {
-			debugMsg('Can not get data Homewizard: '.$ip.'!');
-			}
 			curl_close($ch);
 			return false;
 		} else {
@@ -187,12 +206,8 @@
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$result = curl_exec($ch);
 
-		if (curl_errno($ch)) { 
-			if ($debugLang == 'NL'){
+		if (curl_errno($ch)) {
 			debugMsg('Kan geen gegevens ophalen van Homewizard: '.$ip.'!');
-			} else {
-			debugMsg('Can not get data Homewizard: '.$ip.'!');
-			}
 			curl_close($ch);
 			return false;
 		} else {
@@ -214,11 +229,7 @@
 		$result = curl_exec($ch);
 
 		if (curl_errno($ch)) { 
-			if ($debugLang == 'NL'){
 			debugMsg('Kan geen gegevens ophalen van Homewizard: '.$ip.'!');
-			} else {
-			debugMsg('Can not get data Homewizard: '.$ip.'!');
-			}
 			curl_close($ch);
 			return false;
 		} else {
@@ -262,316 +273,199 @@
 	{
 		return (strlen($num) < 2) ? "0{$num}" : $num;
 	}
-			
+
 // = -------------------------------------------------
-// = Function to calculate if chargers may be switched
+// = Function Update Domoticz Device
 // = -------------------------------------------------
-	function chargerSet(array $chargers, float $P1ChargerUsage): void {
-		global $isWinter, $invInjection, $chargerhyst, $realUsage, $hwP1Usage, $hwInvReturn, $hwSolarReturn, $vars, $varsFile, $hwChargerUsage, $chargerWattsIdle, $chargeLossCalculation, $pvAvInputVoltage, $batteryVolt, $currentTime, $chargerPause, $pauseCharging, $piBatteryPath, $debugMode, $debug, $debugLang, $isManualRun, $varsChanged, $ecoflowMaxOutput;
 
-		$currentTotal = 0;
+	function UpdateDomoticzDevice($idx,$cmd) {
+	  global $domoticzIP;
+	  global $batterySOCIDX;
+	  global $marstekSOCIDX;
+	  global $batteryVoltageIDX;
+	  global $batteryAvailIDX;
+	  global $marstekAvailIDX;
+	  global $batteryChargeTimeIDX;
+	  global $batteryDischargeTimeIDX;
+	  global $marstekChargeTimeIDX;
+	  global $marstekDischargeTimeIDX;
+	  global $inputCounterIDX;
+	  global $outputCounterIDX;
+	  global $marstekInputCounterIDX;
+	  global $marstekOutputCounterIDX;
+	  global $pvCounterIDX;
+	  //global $ecoFlowTempIDX;
+	  global $batteryRTEIDX;
+	  global $marstekRTEIDX;
+	  
+	  $reply = ['status' => 'ERROR'];
+	  
+	  if ($idx == $marstekInputCounterIDX || $idx == $marstekOutputCounterIDX || $idx == $inputCounterIDX || $idx == $outputCounterIDX || $idx == $batterySOCIDX || $idx == $marstekSOCIDX || $idx == $batteryVoltageIDX || $idx == $pvCounterIDX || /*$idx == $ecoFlowTempIDX || */$idx == $batteryRTEIDX || $idx == $marstekRTEIDX){
+	  $reply=json_decode(file_get_contents('http://'.$domoticzIP.'/json.htm?type=command&param=udevice&idx='.$idx.'&nvalue=0&svalue='.$cmd.';0'),true);
+	  }
+	  
+	  if ($idx == $marstekChargeTimeIDX || $idx == $marstekDischargeTimeIDX || $idx == $batteryChargeTimeIDX || $idx == $batteryDischargeTimeIDX || $idx == $batteryAvailIDX || $idx == $marstekAvailIDX){
+	  $reply=json_decode(file_get_contents('http://'.$domoticzIP.'/json.htm?type=command&param=udevice&idx='.$idx.'&nvalue=0&svalue='.$cmd.''),true);
+	  }
+	  
+	  if (($reply['status'] ?? '') == 'OK') $reply='OK'; else $reply='ERROR';
+	  return $reply;
+	}
 
-		foreach ($chargers as $name => $data) {
-			if ($data['status'] === 'On') {
-				$currentTotal += $data['power'];
-			}
+// = -------------------------------------------------
+// = Function get/compare and update Domoticz data
+// = -------------------------------------------------
+	function UpdateDomoticzDeviceIfChanged($idx, $cmd) {
+		global $domoticzStateFile;
+
+		$cmd = (string)$cmd;
+
+		$state = [];
+		if (file_exists($domoticzStateFile)) {
+			$state = json_decode(file_get_contents($domoticzStateFile), true);
+			if (!is_array($state)) $state = [];
 		}
 
-// === Determine chargers behaviour
-		if ($P1ChargerUsage < 0) {
-			$availableSolarPower = abs($P1ChargerUsage); // Heavy Solar Power surplus
-		} elseif ($P1ChargerUsage >= 0 && $P1ChargerUsage < ($chargerhyst / 2)) {
-			$availableSolarPower = $chargerhyst; 		 // Some grid import, toggle chargers within hysteresis allowed
-		} else {
-			$availableSolarPower = 0;   				 // Heavy grid import, all chargers have to toggle OFF
+		if (($state[$idx] ?? null) === $cmd) {
+			return 'SKIP';
 		}
 
-// === Find master charger
-		$masterName = null;
-		foreach ($chargers as $name => $data) {
-			if (!empty($data['master'])) {
-				$masterName = $name;
-				break;
-			}
+		$reply = UpdateDomoticzDevice($idx, $cmd);
+
+		if ($reply == 'OK') {
+			$state[$idx] = $cmd;
+			writeJsonLocked($domoticzStateFile, $state);
 		}
 
-		if (is_null($masterName)) {
-			
-			if ($debugLang == 'NL'){
-			debugMsg("Geen master lader gedefinieerd!");
-			} else {
-			debugMsg("No master charger defined!");
-			}
-			
-			return;
+		return $reply;
+	}
+	
+// = -------------------------------------------------	
+// = Send PiBattery/Marstek battery status to Domoticz
+// = -------------------------------------------------
+	function sendBatteryStatusToDomoticz() {
+		global $domoticzIP;
+		global $batteryPct;
+		global $marstekBatSoc;
+		global $marstekMaxOutput;
+		global $ecoflowOneMaxOutput;
+		global $ecoflowTwoMaxOutput;
+		global $usePiBattery;
+		global $useMarstek;
+		global $batteryMinimum;
+		global $marstekMinimum;
+		$domoticzUrl   = 'http://'.$domoticzIP.'';
+		
+		$totalDischargeMarstek  = 0;
+		$totalDischargePiBattery  = 0;
+		$dischargeAvailable = 0;
+		$totalPibatteryPct = round(($batteryPct), 0);
+		$totalMarstekPct = round(($marstekBatSoc), 0);
+		
+// === Calculate total injection		
+		if ($marstekBatSoc >= $batteryEmptyRecoveryPct) {
+			$totalDischargeMarstek = $marstekMaxOutput;
 		}
 
-		$names = array_keys($chargers);
-		$n = count($names);
-		$combinations = [];
-		$allCombinations = [];
-
-// === Seek best charger combination which fits in the solar power surplus
-		for ($i = 1; $i < (1 << $n); $i++) {
-			$combi = [];
-			$totalChargerUsage = 0;
-			$masterInCombination = false;
-			$containsRestricted = false;
-			$restrictedName = null;
-	
-			for ($j = 0; $j < $n; $j++) {
-				if ($i & (1 << $j)) {
-					$name = $names[$j];
-					$combi[] = $name;
-					$totalChargerUsage += $chargers[$name]['power'];
-	
-					if ($name === $masterName) {
-						$masterInCombination = true;
-					}
-	
-					if (!empty($chargers[$name]['spare_charger'])) {
-						$containsRestricted = true;
-						$restrictedName = $name;
-					}
-				}
-			}
-	
-// === Skip combinations without master
-			if (!$masterInCombination) {
-				continue;
-			}
-
-// === Skip toggling ON a restricted charger is found within a combintion
-			if ($containsRestricted) {
-				$otherChargers = array_diff(array_keys($chargers), [$restrictedName]);
-				if (count(array_intersect($combi, $otherChargers)) !== count($otherChargers)) {
-					continue;
-				}
-			}
-	
-			$allCombinations[] = ['names' => $combi, 'total' => $totalChargerUsage];
-
-			if ($totalChargerUsage <= $availableSolarPower) {
-				$combinations[] = ['names' => $combi, 'total' => $totalChargerUsage];
-			}
+		if ($batteryPct >= $batteryEmptyRecoveryPct) {
+			$totalDischargePiBattery = $ecoflowOneMaxOutput + $ecoflowTwoMaxOutput;
 		}
 
-// === Choose best combination
-		usort($combinations, function($a, $b) {
-			return $b['total'] <=> $a['total'];
-		});
 
-		$bestCombi = $combinations[0]['names'] ?? [];
-		$bestTotal = $combinations[0]['total'] ?? 0;
+		if ($usePiBattery && $useMarstek) {
+			$dischargeAvailable = ($totalDischargeMarstek + $totalDischargePiBattery);
+		} elseif ($usePiBattery && !$useMarstek) {
+			$dischargeAvailable = ($totalDischargePiBattery);			
+		} elseif (!$usePiBattery && $useMarstek) {
+			$dischargeAvailable = ($totalDischargeMarstek);			
+		} elseif (!$usePiBattery && !$useMarstek) {
+			$dischargeAvailable = 0;			
+		}
+		
+		$updates = [
+			[
+				'name'  => 'PiBattery_BatteryPct',
+				'type'  => 0,
+				'value' => (string)$totalPibatteryPct,
+			],
+			[
+				'name'  => 'Marstek_BatteryPct',
+				'type'  => 0,
+				'value' => (string)$totalMarstekPct,
+			],
+			[
+				'name'  => 'PiBattery_DischargeAvailable',
+				'type'  => 0, // Integer
+				'value' => (string)$dischargeAvailable,
+			],
+		];
 
-// === Battery almost fully charged, force chargers to top the battery off
-    $forceTopoff = false;
-	if ($pvAvInputVoltage >= ($batteryVolt + 1.5) && $hwChargerUsage > 1) {
-		$forceCharger = ['charger1', 'charger2', 'charger3'];
+		foreach ($updates as $update) {
+			$url = $domoticzUrl . '/json.htm?type=command&param=updateuservariable'
+				. '&vname=' . rawurlencode($update['name'])
+				. '&vtype=' . $update['type']
+				. '&vvalue=' . rawurlencode($update['value']);
 
-		if (array_diff($forceCharger, $bestCombi) || count($bestCombi) > count($forceCharger)) {
-			$bestCombi = $forceCharger;
-			$totalPower = array_sum(array_map(function($name) use ($chargers) {
-				return $chargers[$name]['power'];
-			}, $forceCharger));
-			$combinations = [['names' => $bestCombi, 'total' => $totalPower]];
-			$allCombinations = $combinations;
+			$ch = curl_init();
+			curl_setopt_array($ch, [
+				CURLOPT_URL            => $url,
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_CONNECTTIMEOUT => 3,
+				CURLOPT_TIMEOUT        => 5,
+				CURLOPT_FAILONERROR    => false,
+			]);
 
-			$vars['forceChargeMode'] = true;
+			$response = curl_exec($ch);
+			$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+			$error    = curl_error($ch);
+
+			curl_close($ch);
+
+			$json = json_decode($response, true);
+
+		}
+	}
+
+// = -------------------------------------------------	
+// = Marstek Set Return Power
+// = -------------------------------------------------
+	function setMarstekReturn($watts) {
+		global $marstekIP;
+		global $vars;
+		global $varsChanged;
+
+		$marstek = new MarstekModbus($marstekIP);
+
+		if (($vars['marstek_force_mode'] ?? '') !== 'discharge') {
+
+			$vars['marstek_force_mode'] = 'discharge';
 			$varsChanged = true;
-            $forceTopoff = true;
-			if ($debugLang == 'NL') {
-				debugMsg("Batterij bijna vol - alleen " . implode(', ', $forceCharger) . " actief houden tot idle bereikt is");
-			} else {
-				debugMsg("Battery nearly full - keep only " . implode(', ', $forceCharger) . " active until idle reached");
-			}
+
+			return $marstek->startDischargePower((int)$watts);
 		}
+
+		return $marstek->setDischargePower((int)$watts);
 	}
-		
-// === Smart charger shutdown
-		foreach ($allCombinations as $combi) {
-			if ($combi['total'] >= $hwChargerUsage) continue;
-
-			$importSaving = $hwChargerUsage - $combi['total'];
-			$importAfterSaving = $P1ChargerUsage - $importSaving;
-
-			if (
-				$importAfterSaving > 0 &&
-				$importAfterSaving < $chargerhyst &&
-				$P1ChargerUsage < 10
-			) {
-				
-			if ($debugLang == 'NL'){
-			debugMsg("Afschaling geblokkeerd: met combinatie ".implode(', ', $combi['names'])." zakt P1 naar {$importAfterSaving}W < hysterese = {$chargerhyst}W");	
-			} else {
-			debugMsg("Downscaling blocked: with combination ".implode(', ', $combi['names'])." sinks p1 to {$importAfterSaving}W < hysteresis = {$chargerhyst}W");	
-			}
-				
-				return;
-			}
-		}
 	
-		if ($bestTotal < $currentTotal && $hwP1Usage < $chargerhyst) {
-			
-			if ($debugLang == 'NL'){
-			debugMsg("Afschalen geblokkeerd: P1 import = {$hwP1Usage}W < hysterese = {$chargerhyst}W");	
-			} else {
-			debugMsg("Downscaling blocked: P1 import = {$hwP1Usage}W < hysteresis = {$chargerhyst}W");		
-			}
-			
-			return;
+// = -------------------------------------------------	
+// = Marstek Set Charge Power
+// = -------------------------------------------------
+	function setMarstekUsage($watts) {
+		global $marstekIP;
+		global $vars;
+		global $varsChanged;
+
+		$marstek = new MarstekModbus($marstekIP);
+
+		if (($vars['marstek_force_mode'] ?? '') !== 'charge') {
+
+			$vars['marstek_force_mode'] = 'charge';
+			$varsChanged = true;
+
+			return $marstek->startChargePower((int)$watts);
 		}
 
-		if ($bestTotal < $hwChargerUsage && $P1ChargerUsage > 0) {
-			$importSaving = $hwChargerUsage - $bestTotal;
-			$importAfterSaving = $P1ChargerUsage - $importSaving;
-
-			if ($importAfterSaving > 0 && $importAfterSaving < $chargerhyst && $P1ChargerUsage < $chargerhyst){
-				if ($debugLang == 'NL'){
-				debugMsg("Afschalen geblokkeerd: P1 import na besparing = {$importAfterSaving}W < hysterese = {$chargerhyst}W");
-				} else {
-				debugMsg("Downscaling blocked: P1 import after savings = {$importAfterSaving}W < hysteresis = {$chargerhyst}W");		
-				}
-			
-				return;
-			} else {
-				if ($debugLang == 'NL'){
-				debugMsg("Alternatieve afschaling geaccepteerd: besparing van {$importSaving}W");
-				} else {
-				debugMsg("Alternative downscaling accepted: saving of {$importSaving}W");	
-				}
-			}
-		}
-	
-		if ($debug == 'yes') {
-			if (!empty($bestCombi)) {
-				if ($debugLang == 'NL'){
-				debugMsg("Beste lader combinatie - ".implode(', ', $bestCombi)."");
-				} else {
-				debugMsg("Best charger combination - ".implode(', ', $bestCombi)."");	
-				}				
-			} else {
-				if ($debugLang == 'NL'){
-				debugMsg("Geen lader combinatie gevonden");
-				} else {
-				debugMsg("Did not find any charger combination");	
-				}
-			}
-		}
-
-// === Check if toggling chargers is needed
-		$schakelingNodig = false;
-		$first = true;
-
-		foreach ($chargers as $name => $data) {
-			$shouldBeOn = in_array($name, $bestCombi);
-			$isOn = ($data['status'] === 'On');
-
-			if ($shouldBeOn && !$isOn) {
-				$schakelingNodig = true;
-				break;
-			} elseif (!$shouldBeOn && $isOn) {
-				$schakelingNodig = true;
-				break;
-			}
-		}
-
-// === Check if toggling chargers needs to be paused
-	$pauseUntil       = $vars['charger_pause_until'] ?? 0;
-	$pendingSwitch 	  = $vars['charger_pending_switch'] ?? false;
-	$currentTimestamp = time();
-
-// === Override pause	
-	$pauseOverride = false;
-	$solarReturn = abs($hwSolarReturn);
-	
-	if ($solarReturn < $hwChargerUsage || $forceTopoff == true || $vars['forceChargeMode'] == true) {
-		$pauseOverride = true;
-	}
-
-		
-// === Pause toggling chargers	
-	if ($pauseOverride == false) {
-		if ($pauseUntil >= $currentTimestamp) {
-			if ($debugLang == 'NL'){
-			debugMsg("Pauze actief tot " . date("H:i:s", $pauseUntil) . ", geen actie");
-			} else {
-			debugMsg("Pause active till " . date("H:i:s", $pauseUntil) . ", no action required");	
-			}
-
-			return;
-		}
-
-
-		if ($pendingSwitch) {
-			if ($debugLang == 'NL'){
-			debugMsg("Pauze verlopen, volgende run schakeling uitvoeren");
-			} else {
-			debugMsg("Pause expired, next run charger(s) toggled ");	
-			}
-
-			if ($vars['charger_pending_switch'] == true) {
-			$varsChanged = true;		
-			$vars['charger_pending_switch'] = false;
-			unset($vars['charger_pause_until']);
-			}
-			
-		} elseif ($schakelingNodig) {
-			$newPauseUntil = time() + $chargerPause;
-			if (
-				($vars['charger_pause_until'] ?? 0) !== $newPauseUntil ||
-				($vars['charger_pending_switch'] ?? false) !== true
-			) {
-				if ($vars['charger_pending_switch'] == false) {
-				$varsChanged = true;	
-				$vars['charger_pause_until'] = $newPauseUntil;
-				$vars['charger_pending_switch'] = true;
-				}
-			}
-
-				if ($debugLang == 'NL'){
-				debugMsg("Schakeling vereist, pauze gestart tot " . date("H:i:s", $vars['charger_pause_until']));
-				} else {
-				debugMsg("Charger toggle required, pause started till " . date("H:i:s", $vars['charger_pause_until']));	
-				}
-
-			return;
-		}
-	}
-
-// === Toggle chargers ON/OFF		
-		foreach ($chargers as $name => $data) {
-			$shouldBeOn = in_array($name, $bestCombi);
-			$isOn = ($data['status'] === 'On');
-
-			if ($shouldBeOn && !$isOn && !$chargeLossCalculation && !$pauseCharging && $hwSolarReturn < -500) {
-				
-			if (!$first) {
-					if (!$isManualRun){
-					sleep(10);
-					}
-				}
-				$first = false;
-				if (!$isManualRun){
-				switchHwSocket($data['label'], 'On');
-				}
-				if ($debugLang == 'NL'){
-				debugMsg("Inschakelen: $name");
-				} else {
-				debugMsg("Switched On: $name");
-				}
-
-			} elseif (!$shouldBeOn && $isOn) {
-				if (!$isManualRun){				
-				switchHwSocket($data['label'], 'Off');
-				}
-				if ($debugLang == 'NL'){
-				debugMsg("Uitschakelen: $name");
-				} else {
-				debugMsg("Switched Off: $name");
-				}
-			}
-		}
+		return $marstek->setChargePower((int)$watts);
 	}
 	
 // = -------------------------------------------------
